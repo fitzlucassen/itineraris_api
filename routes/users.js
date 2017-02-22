@@ -28,7 +28,7 @@ router.get('/:username/:password', function (req, res, next) {
 		if(error != null)
 			res.respond(error, 500);
 		else
-			res.respond(results);
+			res.respond(results.length > 0 ? results[0] : null);
 	});
 });
 
@@ -45,17 +45,25 @@ router.post('/', function (req, res, next) {
 	var shasum = crypto.createHash('sha1');
 	shasum.update(password);
 
-	// Insert the user in database
-	db.add('user', {
-		name: pseudo, 
-		email: email, 
-		password: shasum.digest('hex'), 
-		date: dateHelper.getDateTime()
+	db.byFields('user', {
+		email: email
 	}, function(error, results, fields){
-		if(error != null)
-			res.respond(error, 500);
-		else
-			res.respond({id: results.insertId});
+		if(results.length > 0)
+			res.respond("C'est e-mail existe déjà", 409);
+		else {
+			// Insert the user in database
+			db.add('user', {
+				name: pseudo, 
+				email: email, 
+				password: shasum.digest('hex'), 
+				date: dateHelper.getDateTime()
+			}, function(error, results, fields){
+				if(error != null)
+					res.respond(error, 500);
+				else
+					res.respond({id: results.insertId});
+			});
+		}
 	});
 });
 
