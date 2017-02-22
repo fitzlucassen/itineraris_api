@@ -1,0 +1,36 @@
+{
+  "name": "itineraris_api",
+  "version": "1.0.0",
+  "description": "API to manage itineraris",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fitzlucassen/itineraris_api.git"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "api",
+    "rest"
+  ],
+  "author": "Thibault Dulon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fitzlucassen/itineraris_api/issues"
+  },
+  "homepage": "https://github.com/fitzlucassen/itineraris_api#readme",
+  "dependencies": {
+    "body-parser": "~1.16.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.0",
+    "ejs": "^2.5.6",
+    "express": "^4.14.1",
+    "morgan": "~1.7.0",
+    "mysql": "^2.13.0",
+    "serve-favicon": "~2.3.2"
+  }
+}
