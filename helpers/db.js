@@ -20,8 +20,18 @@ module.exports = function (options) {
 
 		for(var property in properties){
 			if(properties.hasOwnProperty(property)){
-				values += property + '=\'' + properties[property] + '\'';
-				values += ' AND ';
+				if(property == 'multiple'){
+					values += '(';
+					for(var multipleProperty in properties['multiple']){
+						values += multipleProperty + '=\'' + properties['multiple'][multipleProperty] + '\' OR ';
+					}
+					values = values.substr(0, values.length - 4);
+					values += ') AND ';
+				}
+				else {
+					values += property + '=\'' + properties[property] + '\'';
+					values += ' AND ';
+				}
 			}
 		}
 		if(values.length > 0)
