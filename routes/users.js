@@ -51,17 +51,25 @@ router.post('/', function (req, res, next) {
 		if(results.length > 0)
 			res.respond("C'est e-mail existe déjà", 409);
 		else {
-			// Insert the user in database
-			db.add('user', {
-				name: pseudo, 
-				email: email, 
-				password: shasum.digest('hex'), 
-				date: dateHelper.getDateTime()
+			db.byFields('user', {
+				name: name
 			}, function(error, results, fields){
-				if(error != null)
-					res.respond(error, 500);
-				else
-					res.respond({id: results.insertId});
+				if(results.length > 0)
+					res.respond("Ce pseudo existe déjà", 409);
+				else{
+					// Insert the user in database
+					db.add('user', {
+						name: pseudo, 
+						email: email, 
+						password: shasum.digest('hex'), 
+						date: dateHelper.getDateTime()
+					}, function(error, results, fields){
+						if(error != null)
+							res.respond(error, 500);
+						else
+							res.respond({id: results.insertId});
+					});
+				}
 			});
 		}
 	});

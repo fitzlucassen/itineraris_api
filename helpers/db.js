@@ -65,6 +65,50 @@ module.exports = function (options) {
 		});
 	};
 
+	var update = function(entity, properties, whereProperties, callback){
+		var values = '';
+		var whereClause = '';
+
+		for(var property in properties){
+			if(properties.hasOwnProperty(property)){
+				values += property + '=\'' + properties[property] + '\', ';
+			}
+		}
+		for(var property in whereProperties){
+			if(whereProperties.hasOwnProperty(property)){
+				whereClause += property + '=\'' + whereProperties[property] + '\' AND ';
+			}
+		}
+		if(values.length > 0)
+			values = values.substr(0, values.length - 2);
+		if(whereClause.length > 0)
+			whereClause = whereClause.substr(0, whereClause.length - 5);
+
+		console.log(values);
+		console.log(whereClause);
+
+		client.query('UPDATE ' + entity + ' SET ' + values + ' WHERE ' + whereClause, function(error, results, fields){
+			callback(error, results, fields);
+		});
+	};
+
+	var remove = function(entity, properties, callback){
+		var values = '';
+		
+		for(var property in properties){
+			if(properties.hasOwnProperty(property)){
+				values += property + '=\'' + properties[property] + '\' AND ';
+			}
+		}
+
+		if(values.length > 0)
+			values = values.substr(0, values.length - 5);
+
+		client.query('DELETE FROM ' + entity + ' WHERE ' + values, function(error, results, fields){
+			callback(error, results, fields);
+		});
+	};
+
 	return {
 		"open": function open(){
 			client.connect();
@@ -72,6 +116,8 @@ module.exports = function (options) {
 
 		"all": all,
 		"add": add,
+		"update": update,
+		"remove": remove,
 		"byFields": byFields,
 		/**
 		 * Allow disconnection
