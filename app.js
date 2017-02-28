@@ -9,6 +9,7 @@ var db = require('./helpers/db')();
 var index = require('./routes/index');
 var users = require('./routes/users');
 var itineraries = require('./routes/itineraries');
+var steps = require('./routes/steps');
 
 require('./helpers/response');
 
@@ -35,6 +36,7 @@ app.use(function (req, res, next) {
 app.use('/', index);
 app.use('/users', users);
 app.use('/itineraries', itineraries);
+app.use('/steps', steps);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

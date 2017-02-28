@@ -52,7 +52,7 @@ router.post('/', function (req, res, next) {
 			res.respond("C'est e-mail existe déjà", 409);
 		else {
 			db.byFields('user', {
-				name: name
+				name: pseudo
 			}, function(error, results, fields){
 				if(results.length > 0)
 					res.respond("Ce pseudo existe déjà", 409);

@@ -9,6 +9,13 @@ module.exports = function (options) {
 		database: 'itineraris'
 	});
 
+	var replaceAll = function (replace, value, object) {
+		if(parseInt(object) == object)
+			return object;
+		else 
+			return object.replace(new RegExp(replace, 'g'), value);
+	};
+
 	var all = function(entity, callback){
 		client.query('SELECT * FROM ' + entity, function(error, results, fields){
 			callback(error, results, fields);
@@ -49,7 +56,7 @@ module.exports = function (options) {
 		for(var property in properties){
 			if(properties.hasOwnProperty(property)){
 				columns += property + ', ';
-				values += '\'' + properties[property] + '\', ';
+				values += '\'' + replaceAll("'", "''", properties[property]) + '\', ';
 			}
 		}
 		if(columns.length > 0)
@@ -71,12 +78,12 @@ module.exports = function (options) {
 
 		for(var property in properties){
 			if(properties.hasOwnProperty(property)){
-				values += property + '=\'' + properties[property] + '\', ';
+				values += property + '=\'' + replaceAll("'", "''", properties[property]) + '\', ';
 			}
 		}
 		for(var property in whereProperties){
 			if(whereProperties.hasOwnProperty(property)){
-				whereClause += property + '=\'' + whereProperties[property] + '\' AND ';
+				whereClause += property + '=\'' + replaceAll("'", "''", whereProperties[property]) + '\' AND ';
 			}
 		}
 		if(values.length > 0)
@@ -97,7 +104,7 @@ module.exports = function (options) {
 		
 		for(var property in properties){
 			if(properties.hasOwnProperty(property)){
-				values += property + '=\'' + properties[property] + '\' AND ';
+				values += property + '=\'' + replaceAll("'", "''", properties[property]) + '\' AND ';
 			}
 		}
 
