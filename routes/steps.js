@@ -122,6 +122,24 @@ router.delete('/:stepid', function (req, res, next) {
 	});
 });
 
+/*********************/
+/* GET step pictures */
+/*********************/
+router.get('/:stepid/images', function (req, res, next) {
+	// Get params from client
+	var stepId = req.params.stepid;
+
+	// Get itinerary steps of an itinerary in database with these parameters if exists
+	var steps = db.byFields('picture', {
+		id_Step: stepId
+	}, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else
+			res.respond(results);
+	});
+});
+
 /************************/
 /* POST add step images */
 /************************/
@@ -132,7 +150,24 @@ router.post('/:stepid/images', uploadType, function (req, res) {
 	req.files.forEach(function (element) {
 		db.add('picture', {
 			id_Step: stepId,
-			url: 'uploads/' + element.filename,
+			url: element.filename,
+			date: dateHelper.getDateTime()
+		}, function (error, results, fields) {
+			if (error != null)
+				res.respond(error, 500);
+			else
+				res.send(req.files);
+		});
+	});
+});
+
+/************************/
+/* POST add step images */
+/************************/
+router.post('/images', uploadType, function (req, res) {
+	req.files.forEach(function (element) {
+		db.add('picture', {
+			url: element.filename,
 			date: dateHelper.getDateTime()
 		}, function (error, results, fields) {
 			if (error != null)
