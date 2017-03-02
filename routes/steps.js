@@ -3,9 +3,12 @@ var crypto = require('crypto');
 var multer = require('multer');
 var db = require('../helpers/db')();
 var dateHelper = require('../helpers/date')();
+var fs = require('fs');
 
+// Create router
 var router = express.Router();
 
+// Override upload storage functions
 var storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, './uploads/')
@@ -14,11 +17,143 @@ var storage = multer.diskStorage({
 		cb(null, Date.now() + '-' + file.originalname)
 	}
 });
+// Instaciate plugin to manage file upload
 var upload = multer({
 	dest: './uploads/',
 	storage: storage
 });
 var uploadType = upload.array('uploads[]', 12);
+
+/************************************/
+/********** IMAGE MANAGING **********/
+/************************************/
+
+/***********************/
+/* GET get step images */
+/***********************/
+router.get('/:stepid/images', function (req, res, next) {
+	// Get params from client
+	var stepId = req.params.stepid;
+
+	// Get itinerary steps of an itinerary in database with these parameters if exists
+	var steps = db.byFields('picture', {
+		id_Step: stepId
+	}, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else
+			res.respond(results);
+	});
+});
+
+/***********************************/
+/* POST add step images for a step */
+/***********************************/
+router.post('/:stepid/images', uploadType, function (req, res) {
+	// Get params from client
+	var stepId = req.params.stepid;
+	var array = [];
+
+	req.files.forEach(function (element) {
+		var date = dateHelper.getDateTime();
+		var entity = {
+			url: element.filename,
+			date: date,
+			id_Step: stepId
+		};
+
+		array.push(entity);
+	});
+
+	db.addArray('picture', array, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else {
+			res.respond(results);
+		}
+	});
+});
+
+/************************/
+/* POST add step images */
+/************************/
+router.post('/images', uploadType, function (req, res) {
+	var array = [];
+
+	req.files.forEach(function (element) {
+		var date = dateHelper.getDateTime();
+		var entity = {
+			url: element.filename,
+			date: date
+		};
+
+		array.push(entity);
+	});
+
+	db.addArray('picture', array, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else {
+			res.respond(results);
+		}
+	});
+});
+
+/**************************/
+/* PUT update step images */
+/**************************/
+router.put('/images', function (req, res) {
+	var array = [];
+
+	req.body.pictures.forEach(function (element) {
+		var entity = {
+			caption: element.caption,
+			id_Step: element.stepId,
+			id: element.id
+		};
+
+		array.push(entity);
+	});
+
+	db.updateArray('picture', array, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else {
+			res.respond(results);
+		}
+	});
+});
+
+/****************************/
+/* DELETE delete step image */
+/****************************/
+router.delete('/images/:imageid', function (req, res, next) {
+	// Get params from client
+	var imageId = req.params.imageid;
+
+	db.byFields('picture', {
+		id: imageId
+	}, function (error, results, fields) {
+		if (results.length > 0) {
+			fs.unlink('./uploads/' + results[0].url);
+
+			// Delete the itinerary step in database
+			db.remove('picture', {
+				id: imageId,
+			}, function (error, results, fields) {
+				if (error != null)
+					res.respond(error, 500);
+				else {
+					res.respond([]);
+				}
+			});
+		}
+	});
+});
+
+/***********************************/
+/********** STEP MANAGING **********/
+/***********************************/
 
 /***********************/
 /* GET itinerary steps */
@@ -38,6 +173,9 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 	});
 });
 
+/****************************/
+/* GET itinerary step by id */
+/****************************/
 router.get('/:stepid', function (req, res, next) {
 	// Get params from client
 	var stepId = req.params.stepid;
@@ -110,70 +248,30 @@ router.delete('/:stepid', function (req, res, next) {
 	// Get params from client
 	var stepId = req.params.stepid;
 
-	// Delete the itinerary step in database
-	db.remove('step', {
-		id: stepId,
-	}, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			res.respond([]);
-		}
-	});
-});
-
-/*********************/
-/* GET step pictures */
-/*********************/
-router.get('/:stepid/images', function (req, res, next) {
-	// Get params from client
-	var stepId = req.params.stepid;
-
-	// Get itinerary steps of an itinerary in database with these parameters if exists
-	var steps = db.byFields('picture', {
+	db.byFields('picture', {
 		id_Step: stepId
 	}, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else
-			res.respond(results);
-	});
-});
-
-/************************/
-/* POST add step images */
-/************************/
-router.post('/:stepid/images', uploadType, function (req, res) {
-	// Get params from client
-	var stepId = req.params.stepid;
-
-	req.files.forEach(function (element) {
-		db.add('picture', {
-			id_Step: stepId,
-			url: element.filename,
-			date: dateHelper.getDateTime()
-		}, function (error, results, fields) {
-			if (error != null)
-				res.respond(error, 500);
-			else
-				res.send(req.files);
+		results.forEach(function (element) {
+			fs.unlink('./uploads/' + element.url);
 		});
-	});
-});
 
-/************************/
-/* POST add step images */
-/************************/
-router.post('/images', uploadType, function (req, res) {
-	req.files.forEach(function (element) {
-		db.add('picture', {
-			url: element.filename,
-			date: dateHelper.getDateTime()
+		// Delete the itinerary step in database
+		db.remove('picture', {
+			id_Step: stepId
 		}, function (error, results, fields) {
 			if (error != null)
 				res.respond(error, 500);
-			else
-				res.send(req.files);
+			else {
+				db.remove('step', {
+					id: stepId,
+				}, function (error, results, fields) {
+					if (error != null)
+						res.respond(error, 500);
+					else {
+						res.respond([]);
+					}
+				});
+			}
 		});
 	});
 });
