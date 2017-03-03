@@ -10,7 +10,9 @@ module.exports = function (options) {
 	});
 
 	var replaceAll = function (replace, value, object) {
-		if (parseInt(object) == object)
+		console.log(parseInt(object));
+
+		if (parseInt(object) != NaN)
 			return object;
 		else
 			return object.replace(new RegExp(replace, 'g'), value);

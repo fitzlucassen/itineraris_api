@@ -199,6 +199,8 @@ router.put('/:stepid', function (req, res, next) {
 	var stepId = req.params.stepid;
 
 	var city = req.body.city;
+	var lat = req.body.lat;
+	var lng = req.body.lng;
 	var date = req.body.date;
 	var description = req.body.description;
 
@@ -207,6 +209,8 @@ router.put('/:stepid', function (req, res, next) {
 		city: city,
 		date: date,
 		description: description,
+		lat: lat,
+		lng: lng
 	}, {
 			id: stepId
 		}, function (error, results, fields) {
@@ -223,6 +227,8 @@ router.put('/:stepid', function (req, res, next) {
 router.post('/', function (req, res, next) {
 	// Get params from client
 	var city = req.body.city;
+	var lat = req.body.lat;
+	var lng = req.body.lng;
 	var date = req.body.date;
 	var description = req.body.description;
 	var itineraryId = req.body.itineraryId;
@@ -232,6 +238,8 @@ router.post('/', function (req, res, next) {
 		city: city,
 		description: description,
 		id_Itinerary: itineraryId,
+		lat: lat,
+		lng: lng,
 		date: date
 	}, function (error, results, fields) {
 		if (error != null)
