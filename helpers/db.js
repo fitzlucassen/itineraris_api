@@ -6,13 +6,12 @@ module.exports = function (options) {
 		host: 'localhost',
 		user: 'root',
 		password: '',
-		database: 'itineraris'
+		database: 'itineraris',
+		timezone: '+0000'
 	});
 
 	var replaceAll = function (replace, value, object) {
-		console.log(parseInt(object));
-
-		if (parseInt(object) != NaN)
+		if ((parseInt(object) + '') != 'NaN')
 			return object;
 		else
 			return object.replace(new RegExp(replace, 'g'), value);
@@ -84,9 +83,6 @@ module.exports = function (options) {
 		if (values.length > 0)
 			values = values.substr(0, values.length - 2);
 
-		console.log(columns);
-		console.log(values);
-
 		client.query('INSERT INTO ' + entity + ' (' + columns + ') VALUES (' + values + ')', function (error, results, fields) {
 			callback(error, results, fields);
 		});
@@ -101,9 +97,6 @@ module.exports = function (options) {
 			var id = element.id;
 			delete element.id;
 
-			console.log(element);
-			console.log(id);
-			
 			update(entity, element, { id: id }, function (error, results, fields) {
 				array.push(element);
 				errorr = error;
@@ -132,9 +125,6 @@ module.exports = function (options) {
 			values = values.substr(0, values.length - 2);
 		if (whereClause.length > 0)
 			whereClause = whereClause.substr(0, whereClause.length - 5);
-
-		console.log(values);
-		console.log(whereClause);
 
 		client.query('UPDATE ' + entity + ' SET ' + values + ' WHERE ' + whereClause, function (error, results, fields) {
 			callback(error, results, fields);
