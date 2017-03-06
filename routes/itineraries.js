@@ -8,15 +8,46 @@ var router = express.Router();
 /************************/
 /* GET user itineraries */
 /************************/
-router.get('/user/:userid', function (req, res, next) {
-    // Get params from client
-    var userId = req.params.userid;
+router.get('/', function (req, res, next) {
+	// Get itineraries in database
+	var itineraries = db.all('itinerary', function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else {
+			if (results == null || results.length == 0)
+				res.respond(results, 200);
+			else {
+				var finalresult = [];
 
-    // Get itineraries of a user in database with these parameters if exists
+				results.forEach(function (element) {
+					db.byFields('user', {
+						id: element.id_User
+					}, function (error2, results2, fields2) {
+						if (error2 != null)
+							res.respond(error2, 500);
+						else {
+							element['user'] = results2[0];
+							finalresult.push(element);
+						}
+
+						if(finalresult.length == results.length)
+							res.respond(finalresult, 200);
+					});
+				});
+			}
+		}
+	});
+});
+
+router.get('/user/:userid', function (req, res, next) {
+	// Get params from client
+	var userId = req.params.userid;
+
+	// Get itineraries of a user in database with these parameters if exists
 	var itineraries = db.byFields('itinerary', {
 		id_User: userId
-	}, function(error, results, fields){
-		if(error != null)
+	}, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
 		else
 			res.respond(results);
@@ -24,14 +55,14 @@ router.get('/user/:userid', function (req, res, next) {
 });
 
 router.get('/:itineraryid', function (req, res, next) {
-    // Get params from client
-    var itineraryId = req.params.itineraryid;
+	// Get params from client
+	var itineraryId = req.params.itineraryid;
 
-    // Get itineraries of a user in database with these parameters if exists
+	// Get itineraries of a user in database with these parameters if exists
 	var itineraries = db.byFields('itinerary', {
 		id: itineraryId
-	}, function(error, results, fields){
-		if(error != null)
+	}, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
 		else
 			res.respond(results.length > 0 ? results[0] : null);
@@ -41,7 +72,7 @@ router.get('/:itineraryid', function (req, res, next) {
 /************************/
 /* PUT update itinerary */
 /************************/
-router.put('/:itineraryid', function(req, res, next){
+router.put('/:itineraryid', function (req, res, next) {
 	// Get params from client
 	var itineraryId = req.params.itineraryid;
 
@@ -51,17 +82,17 @@ router.put('/:itineraryid', function(req, res, next){
 
 	// Update the itinerary in database
 	db.update('itinerary', {
-		name: name, 
-		country: country, 
-		description: description, 
+		name: name,
+		country: country,
+		description: description,
 	}, {
-		id: itineraryId
-	}, function(error, results, fields){
-		if(error != null)
-			res.respond(error, 500);
-		else
-			res.respond([]);
-	});
+			id: itineraryId
+		}, function (error, results, fields) {
+			if (error != null)
+				res.respond(error, 500);
+			else
+				res.respond([]);
+		});
 });
 
 /**********************/
@@ -76,16 +107,16 @@ router.post('/', function (req, res, next) {
 
 	// Insert the itinerary in database
 	db.add('itinerary', {
-		name: name, 
-		country: country, 
-		description: description, 
-        id_User: userId,
+		name: name,
+		country: country,
+		description: description,
+		id_User: userId,
 		date: dateHelper.getDateTime()
-	}, function(error, results, fields){
-		if(error != null)
+	}, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
 		else
-			res.respond({id: results.insertId});
+			res.respond({ id: results.insertId });
 	});
 });
 
@@ -98,15 +129,15 @@ router.delete('/:itineraryid', function (req, res, next) {
 
 	// Delete the itinerary in database
 	db.remove('step', {
-        id_Itinerary: itineraryId,
-	}, function(error, results, fields){
-		if(error != null)
+		id_Itinerary: itineraryId,
+	}, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
 		else {
 			db.remove('itinerary', {
 				id: itineraryId,
-			}, function(error, results, fields){
-				if(error != null)
+			}, function (error, results, fields) {
+				if (error != null)
 					res.respond(error, 500);
 				else
 					res.respond([]);
