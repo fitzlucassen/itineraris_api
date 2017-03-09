@@ -18,7 +18,7 @@ module.exports = function (options) {
 	};
 
 	var all = function (entity, callback) {
-		client.query('SELECT * FROM ' + entity, function (error, results, fields) {
+		client.query('SELECT * FROM ' + entity + ' ORDER BY id', function (error, results, fields) {
 			callback(error, results, fields);
 		});
 	};
@@ -45,7 +45,7 @@ module.exports = function (options) {
 		if (values.length > 0)
 			values = values.substr(0, values.length - 5);
 
-		client.query('SELECT * FROM ' + entity + ' WHERE ' + values, function (error, results, fields) {
+		client.query('SELECT * FROM ' + entity + ' WHERE ' + values + ' ORDER BY id', function (error, results, fields) {
 			callback(error, results, fields);
 		});
 	};
