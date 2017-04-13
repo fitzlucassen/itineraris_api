@@ -17,8 +17,10 @@ module.exports = function (options) {
 			return object.replace(new RegExp(replace, 'g'), value);
 	};
 
-	var all = function (entity, callback) {
-		client.query('SELECT * FROM ' + entity + ' ORDER BY id', function (error, results, fields) {
+	var all = function (entity, subquery, callback) {
+		var query = 'SELECT main.*' + (subquery === '' ? '' : ', ' + subquery) + ' FROM ' + entity + ' as main ORDER BY main.id';
+
+		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
 		});
 	};
