@@ -203,6 +203,7 @@ router.put('/:stepid', function (req, res, next) {
 	var lng = req.body.lng;
 	var date = req.body.date;
 	var description = req.body.description;
+	var type = req.body.type;
 
 	// Update the itinerary step in database
 	db.update('step', {
@@ -210,7 +211,8 @@ router.put('/:stepid', function (req, res, next) {
 		date: date,
 		description: description,
 		lat: lat,
-		lng: lng
+		lng: lng,
+		type: type
 	}, {
 			id: stepId
 		}, function (error, results, fields) {
@@ -232,6 +234,7 @@ router.post('/', function (req, res, next) {
 	var date = req.body.date;
 	var description = req.body.description;
 	var itineraryId = req.body.itineraryId;
+	var type = req.body.type;
 
 	// Insert the itinerary step in database
 	db.add('step', {
@@ -240,7 +243,8 @@ router.post('/', function (req, res, next) {
 		id_Itinerary: itineraryId,
 		lat: lat,
 		lng: lng,
-		date: date
+		date: date,
+		type: type
 	}, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);

@@ -26,7 +26,11 @@ router.get('/', function (req, res, next) {
 						if (error2 != null)
 							res.respond(error2, 500);
 						else {
-							element['user'] = results2[0];
+							var user = {
+								id: results2[0]['id'],
+								name: results2[0]['name']
+							}
+							element['user'] = user;
 							finalresult.push(element);
 						}
 
