@@ -22,7 +22,7 @@ router.get('/', function (req, res, next) {
 				results.forEach(function (element) {
 					db.byFields('user', {
 						id: element.id_User
-					}, function (error2, results2, fields2) {
+					}, null, function (error2, results2, fields2) {
 						if (error2 != null)
 							res.respond(error2, 500);
 						else {
@@ -50,7 +50,7 @@ router.get('/user/:userid', function (req, res, next) {
 	// Get itineraries of a user in database with these parameters if exists
 	var itineraries = db.byFields('itinerary', {
 		id_User: userId
-	}, function (error, results, fields) {
+	}, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -65,7 +65,7 @@ router.get('/:itineraryid', function (req, res, next) {
 	// Get itineraries of a user in database with these parameters if exists
 	var itineraries = db.byFields('itinerary', {
 		id: itineraryId
-	}, function (error, results, fields) {
+	}, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else

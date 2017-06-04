@@ -25,7 +25,7 @@ module.exports = function (options) {
 		});
 	};
 
-	var byFields = function (entity, properties, callback) {
+	var byFields = function (entity, properties, order, callback) {
 		var values = '';
 
 		for (var property in properties) {
@@ -47,7 +47,16 @@ module.exports = function (options) {
 		if (values.length > 0)
 			values = values.substr(0, values.length - 5);
 
-		client.query('SELECT * FROM ' + entity + ' WHERE ' + values + ' ORDER BY id', function (error, results, fields) {
+		var o = 'ORDER BY';
+		if(order != null)
+			o += ' ' + order + ', id';
+		else 
+			o += ' id';
+
+		var query = 'SELECT * FROM ' + entity + ' WHERE ' + values + ' ' + o;
+		console.log(query);
+		
+		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
 		});
 	};

@@ -38,7 +38,7 @@ router.get('/:stepid/images', function (req, res, next) {
 	// Get itinerary steps of an itinerary in database with these parameters if exists
 	var steps = db.byFields('picture', {
 		id_Step: stepId
-	}, function (error, results, fields) {
+	}, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -133,7 +133,7 @@ router.delete('/images/:imageid', function (req, res, next) {
 
 	db.byFields('picture', {
 		id: imageId
-	}, function (error, results, fields) {
+	}, null, function (error, results, fields) {
 		if (results.length > 0) {
 			fs.unlink('./uploads/' + results[0].url);
 
@@ -165,7 +165,7 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 	// Get itinerary steps of an itinerary in database with these parameters if exists
 	var steps = db.byFields('step', {
 		id_Itinerary: itineraryId
-	}, function (error, results, fields) {
+	}, 'position', function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -183,7 +183,7 @@ router.get('/:stepid', function (req, res, next) {
 	// Get itinerary step in database with these parameters if exists
 	var itineraries = db.byFields('step', {
 		id: stepId
-	}, function (error, results, fields) {
+	}, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -204,6 +204,7 @@ router.put('/:stepid', function (req, res, next) {
 	var date = req.body.date;
 	var description = req.body.description;
 	var type = req.body.type;
+	var position = req.body.position;
 
 	// Update the itinerary step in database
 	db.update('step', {
@@ -212,7 +213,8 @@ router.put('/:stepid', function (req, res, next) {
 		description: description,
 		lat: lat,
 		lng: lng,
-		type: type
+		type: type,
+		position: position
 	}, {
 			id: stepId
 		}, function (error, results, fields) {
@@ -262,7 +264,7 @@ router.delete('/:stepid', function (req, res, next) {
 
 	db.byFields('picture', {
 		id_Step: stepId
-	}, function (error, results, fields) {
+	}, null, function (error, results, fields) {
 		results.forEach(function (element) {
 			fs.unlink('./uploads/' + element.url);
 		});

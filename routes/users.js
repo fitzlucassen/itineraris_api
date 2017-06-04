@@ -24,7 +24,7 @@ router.get('/:username/:password', function (req, res, next) {
 			email: username
 		}, 
 		password: shasum.digest('hex')
-	}, function(error, results, fields){
+	}, null, function(error, results, fields){
 		if(error != null)
 			res.respond(error, 500);
 		else
@@ -47,13 +47,13 @@ router.post('/', function (req, res, next) {
 
 	db.byFields('user', {
 		email: email
-	}, function(error, results, fields){
+	}, null, function(error, results, fields){
 		if(results.length > 0)
 			res.respond("C'est e-mail existe déjà", 409);
 		else {
 			db.byFields('user', {
 				name: pseudo
-			}, function(error, results, fields){
+			}, null, function(error, results, fields){
 				if(results.length > 0)
 					res.respond("Ce pseudo existe déjà", 409);
 				else{
