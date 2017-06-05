@@ -225,6 +225,37 @@ router.put('/:stepid', function (req, res, next) {
 		});
 });
 
+router.put('/', function (req, res, next) {
+	// Get params from client
+	var steps = req.body.steps;
+
+	var cpt = 0;
+	// Update the itinerary step in database
+	steps.forEach(function (element) {
+		var stepId = element.id;
+
+		db.update('step', {
+			city: element.city,
+			date: element.date,
+			description: element.description,
+			lat: element.lat,
+			lng: element.lng,
+			type: element.type,
+			position: element.position
+		}, 
+		{
+			id: stepId
+		}, function (error, results, fields) {
+			if (error != null){
+				res.respond(error, 500);
+				return;
+			}
+			else if (cpt++ == steps.length - 1)
+				res.respond([]);
+		});
+	});
+});
+
 /***************************/
 /* POST add itinerary step */
 /***************************/

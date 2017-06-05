@@ -54,7 +54,6 @@ module.exports = function (options) {
 			o += ' id';
 
 		var query = 'SELECT * FROM ' + entity + ' WHERE ' + values + ' ' + o;
-		console.log(query);
 		
 		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
