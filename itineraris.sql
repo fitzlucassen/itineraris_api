@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Client :  127.0.0.1
--- Généré le :  Jeu 02 Mars 2017 à 13:36
+-- Généré le :  Lun 05 Juin 2017 à 17:57
 -- Version du serveur :  5.7.14
 -- Version de PHP :  7.0.10
 
@@ -56,6 +56,20 @@ CREATE TABLE `picture` (
   `date` datetime NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+--
+-- Contenu de la table `picture`
+--
+
+INSERT INTO `picture` (`id`, `id_Step`, `url`, `caption`, `date`) VALUES
+(59, 20, '1488630966522-Australie (11).JPG.jpg', 'jour 4', '2017-03-04 13:36:06'),
+(57, 19, '1488630896492-Australie (9).JPG.jpg', 'jour 22', '2017-03-04 13:34:56'),
+(58, 20, '1488630966420-Australie (10).JPG.jpg', 'jour 3', '2017-03-04 13:36:06'),
+(56, 19, '1488630896436-Australie (1).JPG.jpg', 'jour 11', '2017-03-04 13:34:56'),
+(60, 21, '1488631691695-Australie (21).JPG.jpg', 'jour 5', '2017-03-04 13:48:11'),
+(61, 21, '1488631691788-Australie (22).JPG.jpg', 'jour 6', '2017-03-04 13:48:11'),
+(62, 22, '1488631842053-Australie (51).JPG.jpg', 'photo 10', '2017-03-04 13:50:42'),
+(63, 22, '1488631842149-Australie (52).JPG.jpg', '1231e g', '2017-03-04 13:50:42');
+
 -- --------------------------------------------------------
 
 --
@@ -67,6 +81,37 @@ CREATE TABLE `step` (
   `id_Itinerary` int(10) NOT NULL,
   `city` varchar(255) NOT NULL,
   `description` text NOT NULL,
+  `lat` double DEFAULT NULL,
+  `lng` double DEFAULT NULL,
+  `type` varchar(100) NOT NULL DEFAULT 'DRIVING',
+  `position` int(10) NOT NULL DEFAULT '0',
+  `date` datetime NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Contenu de la table `step`
+--
+
+INSERT INTO `step` (`id`, `id_Itinerary`, `city`, `description`, `lat`, `lng`, `type`, `position`, `date`) VALUES
+(20, 1, 'Huancayo', 'Capitale tu trekking ! on va v\'oir ça !', -12.0686357, -75.21029759999999, 'DRIVING', 6, '2017-08-28 00:00:00'),
+(19, 1, 'Lima', 'la capitale ! Sympa!', -12.046374, -77.0427934, 'DRIVING', 5, '2017-08-24 00:00:00'),
+(21, 1, 'Paracas', 'Un peu de mer et de désert :D', -13.8409149, -76.25083039999998, 'DRIVING', 7, '2017-08-31 00:00:00'),
+(22, 1, 'Matucana', 'oasis de fou', -11.8407317, -76.37964529999999, 'DRIVING', 4, '2017-09-05 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `stop`
+--
+
+CREATE TABLE `stop` (
+  `id` int(10) NOT NULL,
+  `id_Itinerary` int(10) NOT NULL,
+  `city` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `lat` double DEFAULT NULL,
+  `lng` double DEFAULT NULL,
+  `position` int(10) NOT NULL DEFAULT '0',
   `date` datetime NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -115,6 +160,12 @@ ALTER TABLE `step`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `stop`
+--
+ALTER TABLE `stop`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Index pour la table `user`
 --
 ALTER TABLE `user`
@@ -133,12 +184,17 @@ ALTER TABLE `itinerary`
 -- AUTO_INCREMENT pour la table `picture`
 --
 ALTER TABLE `picture`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 --
 -- AUTO_INCREMENT pour la table `step`
 --
 ALTER TABLE `step`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+--
+-- AUTO_INCREMENT pour la table `stop`
+--
+ALTER TABLE `stop`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT pour la table `user`
 --
