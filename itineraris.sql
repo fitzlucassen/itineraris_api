@@ -51,6 +51,7 @@ INSERT INTO `itinerary` (`id`, `id_User`, `name`, `country`, `description`, `dat
 CREATE TABLE `picture` (
   `id` int(10) NOT NULL,
   `id_Step` int(10) DEFAULT NULL,
+  `id_Stop` int(10) DEFAULT NULL,
   `url` text NOT NULL,
   `caption` varchar(255) DEFAULT NULL,
   `date` datetime NOT NULL

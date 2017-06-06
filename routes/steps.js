@@ -109,6 +109,7 @@ router.put('/images', function (req, res) {
 		var entity = {
 			caption: element.caption,
 			id_Step: element.stepId,
+			id_Stop: element.stopId,
 			id: element.id
 		};
 

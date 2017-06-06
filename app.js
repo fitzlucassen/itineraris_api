@@ -10,6 +10,7 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var itineraries = require('./routes/itineraries');
 var steps = require('./routes/steps');
+var stops = require('./routes/stops');
 
 require('./helpers/response');
 
@@ -38,6 +39,7 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/itineraries', itineraries);
 app.use('/steps', steps);
+app.use('/stops', stops);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
