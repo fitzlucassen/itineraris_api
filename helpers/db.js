@@ -83,7 +83,7 @@ module.exports = function (options) {
 		var values = '';
 
 		for (var property in properties) {
-			if (properties.hasOwnProperty(property)) {
+			if (properties.hasOwnProperty(property) && properties[property] != null && properties[property] != undefined) {
 				columns += property + ', ';
 				values += '\'' + replaceAll("'", "''", properties[property]) + '\', ';
 			}
@@ -122,12 +122,12 @@ module.exports = function (options) {
 		var whereClause = '';
 
 		for (var property in properties) {
-			if (properties.hasOwnProperty(property)) {
+			if (properties.hasOwnProperty(property) && properties[property] != null && properties[property] != undefined) {
 				values += property + '=\'' + replaceAll("'", "''", properties[property]) + '\', ';
 			}
 		}
 		for (var property in whereProperties) {
-			if (whereProperties.hasOwnProperty(property)) {
+			if (whereProperties.hasOwnProperty(property) && whereProperties[property] != null && whereProperties[property] != undefined) {
 				whereClause += property + '=\'' + replaceAll("'", "''", whereProperties[property]) + '\' AND ';
 			}
 		}
