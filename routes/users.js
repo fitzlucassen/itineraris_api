@@ -2,6 +2,7 @@ var express = require('express');
 var crypto = require('crypto');
 var db = require('../helpers/db')();
 var dateHelper = require('../helpers/date')();
+var atob = require('atob');
 
 var router = express.Router();
 
@@ -10,8 +11,8 @@ var router = express.Router();
 /*********************************/
 router.get('/:username/:password', function (req, res, next) {
 	// Get params from client
-	var username = req.params.username;
-	var password = req.params.password;
+	var username = atob(req.params.username);
+	var password = atob(req.params.password);
 
 	// Encode password to sha1
 	var shasum = crypto.createHash('sha1');
@@ -27,8 +28,11 @@ router.get('/:username/:password', function (req, res, next) {
 	}, null, function(error, results, fields){
 		if(error != null)
 			res.respond(error, 500);
-		else
+		else{
+			delete results[0].password;
+			delete results[0].date;
 			res.respond(results.length > 0 ? results[0] : null);
+		}
 	});
 });
 
@@ -37,9 +41,9 @@ router.get('/:username/:password', function (req, res, next) {
 /*****************/
 router.post('/', function (req, res, next) {
 	// Get params from client
-	var pseudo = req.body.name;
-	var email = req.body.email;
-	var password = req.body.password;
+	var pseudo = atob(req.body.name);
+	var email = atob(req.body.email);
+	var password = atob(req.body.password);
 
 	// Encode password to sha1
 	var shasum = crypto.createHash('sha1');
