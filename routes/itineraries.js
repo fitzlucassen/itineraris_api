@@ -10,7 +10,7 @@ var router = express.Router();
 /************************/
 router.get('/', function (req, res, next) {
 	// Get itineraries in database
-	var itineraries = db.all('itinerary', '(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep', function (error, results, fields) {
+	var itineraries = db.all('itinerary', '(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng', function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else {
