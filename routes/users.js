@@ -29,8 +29,10 @@ router.get('/:username/:password', function (req, res, next) {
 		if(error != null)
 			res.respond(error, 500);
 		else{
-			delete results[0].password;
-			delete results[0].date;
+			if(results[0]){
+				delete results[0].password;
+				delete results[0].date;
+			}
 			res.respond(results.length > 0 ? results[0] : null);
 		}
 	});
