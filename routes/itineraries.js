@@ -10,7 +10,12 @@ var router = express.Router();
 /************************/
 router.get('/', function (req, res, next) {
 	// Get itineraries in database
-	var itineraries = db.all('itinerary', '(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng', function (error, results, fields) {
+	var itineraries = db.byFields('itinerary', {
+		online: 1
+	}, 
+	null, 
+	'(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng', 
+	function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else {
@@ -22,7 +27,7 @@ router.get('/', function (req, res, next) {
 				results.forEach(function (element) {
 					db.byFields('user', {
 						id: element.id_User
-					}, null, function (error2, results2, fields2) {
+					}, null, null, function (error2, results2, fields2) {
 						if (error2 != null)
 							res.respond(error2, 500);
 						else {
@@ -50,7 +55,7 @@ router.get('/user/:userid', function (req, res, next) {
 	// Get itineraries of a user in database with these parameters if exists
 	var itineraries = db.byFields('itinerary', {
 		id_User: userId
-	}, null, function (error, results, fields) {
+	}, null, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -65,7 +70,7 @@ router.get('/:itineraryid', function (req, res, next) {
 	// Get itineraries of a user in database with these parameters if exists
 	var itineraries = db.byFields('itinerary', {
 		id: itineraryId
-	}, null, function (error, results, fields) {
+	}, null, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -83,12 +88,14 @@ router.put('/:itineraryid', function (req, res, next) {
 	var name = req.body.name;
 	var country = req.body.country;
 	var description = req.body.description;
+	var online = req.body.online;
 
 	// Update the itinerary in database
 	db.update('itinerary', {
 		name: name,
 		country: country,
 		description: description,
+		online: online
 	}, {
 			id: itineraryId
 		}, function (error, results, fields) {
@@ -108,6 +115,7 @@ router.post('/', function (req, res, next) {
 	var country = req.body.country;
 	var description = req.body.description;
 	var userId = req.body.userId;
+	var online = req.body.online;
 
 	// Insert the itinerary in database
 	db.add('itinerary', {
@@ -115,7 +123,8 @@ router.post('/', function (req, res, next) {
 		country: country,
 		description: description,
 		id_User: userId,
-		date: dateHelper.getDateTime()
+		date: dateHelper.getDateTime(),
+		online: online
 	}, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);

@@ -7,17 +7,17 @@ var fs = require('fs');
 
 // Override upload storage functions
 var storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, './uploads/')
-	},
-	filename: function (req, file, cb) {
-		cb(null, Date.now() + '-' + file.originalname)
-	}
+    destination: function (req, file, cb) {
+        cb(null, './uploads/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
 });
 // Instaciate plugin to manage file upload
 var upload = multer({
-	dest: './uploads/',
-	storage: storage
+    dest: './uploads/',
+    storage: storage
 });
 var uploadType = upload.array('uploads[]', 12);
 
@@ -31,7 +31,7 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
     // Get itinerary stops of an itinerary in database with these parameters if exists
     var stops = db.byFields('stop', {
         id_Itinerary: itineraryId
-    }, 'position', function (error, results, fields) {
+    }, 'position', null, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
         else
@@ -49,7 +49,7 @@ router.get('/:stopid', function (req, res, next) {
     // Get itinerary stop in database with these parameters if exists
     var itineraries = db.byFields('stop', {
         id: stopId
-    }, null, function (error, results, fields) {
+    }, null, null, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
         else
@@ -156,7 +156,7 @@ router.delete('/:stopid', function (req, res, next) {
 
     db.byFields('picture', {
         id_Stop: stopId
-    }, null, function (error, results, fields) {
+    }, null, null, function (error, results, fields) {
         results.forEach(function (element) {
             fs.unlink('./uploads/' + element.url);
         });
@@ -186,18 +186,18 @@ router.delete('/:stopid', function (req, res, next) {
 /* GET get step images */
 /***********************/
 router.get('/:stopid/images', function (req, res, next) {
-	// Get params from client
-	var stopId = req.params.stopid;
+    // Get params from client
+    var stopId = req.params.stopid;
 
-	// Get itinerary stops of an itinerary in database with these parameters if exists
-	var stops = db.byFields('picture', {
-		id_Stop: stopId
-	}, null, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else
-			res.respond(results);
-	});
+    // Get itinerary stops of an itinerary in database with these parameters if exists
+    var stops = db.byFields('picture', {
+        id_Stop: stopId
+    }, null, null, function (error, results, fields) {
+        if (error != null)
+            res.respond(error, 500);
+        else
+            res.respond(results);
+    });
 });
 /***********************************/
 /* POST add stop images for a step */

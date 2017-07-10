@@ -25,7 +25,7 @@ module.exports = function (options) {
 		});
 	};
 
-	var byFields = function (entity, properties, order, callback) {
+	var byFields = function (entity, properties, order, subquery, callback) {
 		var values = '';
 
 		for (var property in properties) {
@@ -53,7 +53,7 @@ module.exports = function (options) {
 		else 
 			o += ' id';
 
-		var query = 'SELECT * FROM ' + entity + ' WHERE ' + values + ' ' + o;
+		var query = 'SELECT main.* ' + (subquery === '' ? '' : ', ' + subquery) + ' FROM ' + entity + ' as main WHERE ' + values + ' ' + o;
 		
 		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);

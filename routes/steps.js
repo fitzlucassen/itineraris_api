@@ -38,7 +38,7 @@ router.get('/:stepid/images', function (req, res, next) {
 	// Get itinerary steps of an itinerary in database with these parameters if exists
 	var steps = db.byFields('picture', {
 		id_Step: stepId
-	}, null, function (error, results, fields) {
+	}, null, null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -134,7 +134,7 @@ router.delete('/images/:imageid', function (req, res, next) {
 
 	db.byFields('picture', {
 		id: imageId
-	}, null, function (error, results, fields) {
+	}, null,  null, function (error, results, fields) {
 		if (results.length > 0) {
 			fs.unlink('./uploads/' + results[0].url);
 
@@ -166,7 +166,7 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 	// Get itinerary steps of an itinerary in database with these parameters if exists
 	var steps = db.byFields('step', {
 		id_Itinerary: itineraryId
-	}, 'position', function (error, results, fields) {
+	}, 'position',  null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -184,7 +184,7 @@ router.get('/:stepid', function (req, res, next) {
 	// Get itinerary step in database with these parameters if exists
 	var itineraries = db.byFields('step', {
 		id: stepId
-	}, null, function (error, results, fields) {
+	}, null,  null, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -296,7 +296,7 @@ router.delete('/:stepid', function (req, res, next) {
 
 	db.byFields('picture', {
 		id_Step: stepId
-	}, null, function (error, results, fields) {
+	}, null, null, function (error, results, fields) {
 		results.forEach(function (element) {
 			fs.unlink('./uploads/' + element.url);
 		});
