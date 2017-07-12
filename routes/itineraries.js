@@ -12,40 +12,40 @@ router.get('/', function (req, res, next) {
 	// Get itineraries in database
 	var itineraries = db.byFields('itinerary', {
 		online: 1
-	}, 
-	null, 
-	'(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng', 
-	function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			if (results == null || results.length == 0)
-				res.respond(results, 200);
+	},
+		null,
+		'(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng',
+		function (error, results, fields) {
+			if (error != null)
+				res.respond(error, 500);
 			else {
-				var finalresult = [];
+				if (results == null || results.length == 0)
+					res.respond(results, 200);
+				else {
+					var finalresult = [];
 
-				results.forEach(function (element) {
-					db.byFields('user', {
-						id: element.id_User
-					}, null, null, function (error2, results2, fields2) {
-						if (error2 != null)
-							res.respond(error2, 500);
-						else {
-							var user = {
-								id: results2[0]['id'],
-								name: results2[0]['name']
+					results.forEach(function (element) {
+						db.byFields('user', {
+							id: element.id_User
+						}, null, null, function (error2, results2, fields2) {
+							if (error2 != null)
+								res.respond(error2, 500);
+							else {
+								var user = {
+									id: results2[0]['id'],
+									name: results2[0]['name']
+								}
+								element['user'] = user;
+								finalresult.push(element);
 							}
-							element['user'] = user;
-							finalresult.push(element);
-						}
 
-						if(finalresult.length == results.length)
-							res.respond(finalresult, 200);
+							if (finalresult.length == results.length)
+								res.respond(finalresult, 200);
+						});
 					});
-				});
+				}
 			}
-		}
-	});
+		});
 });
 
 router.get('/user/:userid', function (req, res, next) {
@@ -89,13 +89,15 @@ router.put('/:itineraryid', function (req, res, next) {
 	var country = req.body.country;
 	var description = req.body.description;
 	var online = req.body.online;
+	var likes = req.body.likes;
 
 	// Update the itinerary in database
 	db.update('itinerary', {
 		name: name,
 		country: country,
 		description: description,
-		online: online
+		online: online,
+		likes: likes
 	}, {
 			id: itineraryId
 		}, function (error, results, fields) {
