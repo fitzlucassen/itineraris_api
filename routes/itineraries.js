@@ -10,11 +10,11 @@ var router = express.Router();
 /************************/
 router.get('/', function (req, res, next) {
 	// Get itineraries in database
-	var itineraries = db.byFields('itinerary', {
-		online: 1
-	},
-		null,
-		'(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng',
+	var itineraries = db.byFields('itinerary', [{
+		key: 'online',
+		value: 1,
+		equalType: true
+	}], null, '(SELECT COUNT(*) as nbStep FROM step WHERE id_Itinerary = main.id) as nbStep, (SELECT lat FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLat, (SELECT lng FROM step WHERE id_Itinerary = main.id ORDER BY id LIMIT 1) as stepLng',
 		function (error, results, fields) {
 			if (error != null)
 				res.respond(error, 500);
@@ -25,9 +25,11 @@ router.get('/', function (req, res, next) {
 					var finalresult = [];
 
 					results.forEach(function (element) {
-						db.byFields('user', {
-							id: element.id_User
-						}, null, null, function (error2, results2, fields2) {
+						db.byFields('user', [{
+							key: 'id',
+							value: element.id_User,
+							equalType: true
+						}], null, null, function (error2, results2, fields2) {
 							if (error2 != null)
 								res.respond(error2, 500);
 							else {

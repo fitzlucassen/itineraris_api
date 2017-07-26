@@ -1,3 +1,5 @@
+var queryer = require('./query')();
+
 module.exports = function (options) {
 	/**
 	 * Module options
@@ -18,8 +20,16 @@ module.exports = function (options) {
 	};
 
 	var all = function (entity, subquery, callback) {
-		var query = 'SELECT main.*' + (subquery === '' ? '' : ', ' + subquery) + ' FROM ' + entity + ' as main ORDER BY main.id';
-
+		var query = 
+			queryer.select(['main.*', subquery]) +
+			queryer.from([
+				{
+					table: entity,
+					alias: 'main'
+				}
+			]) +
+			queryer.orderBy(['main.id']);
+			
 		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
 		});
@@ -28,33 +38,18 @@ module.exports = function (options) {
 	var byFields = function (entity, properties, order, subquery, callback) {
 		var values = '';
 
-		for (var property in properties) {
-			if (properties.hasOwnProperty(property)) {
-				if (property == 'multiple') {
-					values += '(';
-					for (var multipleProperty in properties['multiple']) {
-						values += multipleProperty + '=\'' + properties['multiple'][multipleProperty] + '\' OR ';
-					}
-					values = values.substr(0, values.length - 4);
-					values += ') AND ';
+		var query = 
+			queryer.select(['main.*', subquery]) + 
+			queryer.from([
+				{
+					table: entity,
+					alias: 'main'
 				}
-				else {
-					values += property + '=\'' + properties[property] + '\'';
-					values += ' AND ';
-				}
-			}
-		}
-		if (values.length > 0)
-			values = values.substr(0, values.length - 5);
-
-		var o = 'ORDER BY';
-		if(order != null)
-			o += ' ' + order + ', id';
-		else 
-			o += ' id';
-
-		var query = 'SELECT main.* ' + (subquery === '' ? '' : ', ' + subquery) + ' FROM ' + entity + ' as main WHERE ' + values + ' ' + o;
+			]) +
+			queryer.where(properties) + 
+			queryer.orderBy([order, 'id']);
 		
+			console.log(query);
 		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
 		});
