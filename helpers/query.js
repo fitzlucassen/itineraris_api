@@ -4,6 +4,7 @@ module.exports = function (options) {
     const WHERE = 'WHERE';
     const IN = 'IN';
     const ORDER = 'ORDER BY';
+    const LIMIT = 'LIMIT';
     const EQUAL = '=';
 
     var select = function(entities){
@@ -54,7 +55,7 @@ module.exports = function (options) {
             }
             // else put value
             else 
-                query += '\'' + element.value + '\' ';
+                query += !element.noEscape ? ('\'' + element.value + '\' ') : element.value + ' ';
         });
 
         return query + ' ';
@@ -70,13 +71,20 @@ module.exports = function (options) {
 
         query = query.substr(0, query.length - 2);
 
-        return query;
+        return query + ' ';
+    };
+
+    var limit = function(value){
+        var query = LIMIT + ' ' + value;
+
+        return query + ' ';
     };
 
     return {
         "select": select,
         "from": from,
         "where": where,
-        "orderBy": orderBy
+        "orderBy": orderBy,
+        "limit": limit
 	};
 };

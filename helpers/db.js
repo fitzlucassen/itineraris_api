@@ -19,37 +19,7 @@ module.exports = function (options) {
 			return object.replace(new RegExp(replace, 'g'), value);
 	};
 
-	var all = function (entity, subquery, callback) {
-		var query = 
-			queryer.select(['main.*', subquery]) +
-			queryer.from([
-				{
-					table: entity,
-					alias: 'main'
-				}
-			]) +
-			queryer.orderBy(['main.id']);
-			
-		client.query(query, function (error, results, fields) {
-			callback(error, results, fields);
-		});
-	};
-
-	var byFields = function (entity, properties, order, subquery, callback) {
-		var values = '';
-
-		var query = 
-			queryer.select(['main.*', subquery]) + 
-			queryer.from([
-				{
-					table: entity,
-					alias: 'main'
-				}
-			]) +
-			queryer.where(properties) + 
-			queryer.orderBy([order, 'id']);
-		
-			console.log(query);
+	var query = function(query, callback){
 		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
 		});
@@ -158,13 +128,12 @@ module.exports = function (options) {
 			client.connect();
 		},
 
-		"all": all,
 		"addArray": addArray,
 		"updateArray": updateArray,
 		"add": add,
 		"update": update,
 		"remove": remove,
-		"byFields": byFields,
+		"query": query,
 		/**
 		 * Allow disconnection
 		 */
