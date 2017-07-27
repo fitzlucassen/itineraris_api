@@ -58,7 +58,6 @@ router.get('/', function (req, res, next) {
 	});
 });
 
-
 router.get('/user/:userid', function (req, res, next) {
 	// Get params from client
 	var userId = req.params.userid;
@@ -171,14 +170,19 @@ router.post('/', function (req, res, next) {
 		name: name,
 		country: country,
 		description: description,
-		id_User: userId,
 		date: dateHelper.getDateTime(),
 		online: online
 	}, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
-		else
-			res.respond({ id: results.insertId });
+		else{
+			db.add('itinerary_user', {
+				id_Itinerary: results.insertId,
+				id_User: userId
+			}, function(error2, results2, fields2){
+				res.respond({ id: results.insertId });
+			});
+		}
 	});
 });
 

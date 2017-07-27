@@ -20,7 +20,7 @@ router.get('/:username/:password', function (req, res, next) {
 	shasum.update(password);
 
 	// Get users in database with these parameters if exists
-	var query = repository.getUserByNameAndPassword(username, password);
+	var query = repository.getUserByNameAndPassword(username, shasum.digest('hex'));
 	var users = db.query(query, function(error, results, fields){
 		if(error != null)
 			res.respond(error, 500);

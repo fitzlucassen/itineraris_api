@@ -41,27 +41,27 @@ module.exports = function (options) {
                 query += element.link + ' ';
 
             if(element.openBraket)
-                query += '(';
+                query += ' ( ';
 
             // Manage = or IN operand between condition key and condition value
             query += element.key + ' ' + (element.equalType ? EQUAL : IN) + ' ';
 
             // If condition value is a list, browse it
             if(typeof element.value == 'object'){
-                query += '(';
+                query += ' ( ';
 
                 element.value.forEach(function(e){
                     query += '\'' + e + '\', ';
                 });
                 query = query.substr(0, query.length -2);
-                query += ') ';
+                query += ' ) ';
             }
             // else put value
             else 
                 query += !element.noEscape ? ('\'' + element.value + '\' ') : element.value + ' ';
 
             if(element.closeBraket)
-                query += ')';
+                query += ' ) ';
         });
 
         return query + ' ';
