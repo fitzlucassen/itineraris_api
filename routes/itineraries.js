@@ -109,6 +109,8 @@ router.get('/:itineraryid', function (req, res, next) {
 						id: element.userId,
 						name: element.userName
 					}];
+					delete element.userId;
+					delete element.userName;
 					itineraries.push(element);
 				}
 				else {
