@@ -34,7 +34,77 @@ module.exports = function (options) {
 			queryer.orderBy(['nbStep', 'likes']);
 
 		return query;
-	}
+	};
+
+	var getUserItineraries = function(userId){
+		var query =
+			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
+			queryer.from([{
+				table: 'itinerary',
+				alias: 'main'
+			}, {
+				table: 'itinerary_user',
+				alias: 'iu'
+			}, {
+				table: 'user',
+				alias: 'u'
+			}]) +
+			queryer.where([{
+				key: 'u.id',
+				value: userId,
+				equalType: true
+			}, {
+				key: 'iu.id_Itinerary',
+				value: 'main.id',
+				equalType: true,
+				noEscape: true,
+				link: 'AND'
+			}, {
+				key: 'iu.id_User',
+				value: 'u.id',
+				equalType: true,	
+				noEscape: true,
+				link: 'AND'
+			}]) +
+			queryer.orderBy(['main.id']);
+		
+		return query;
+	};
+
+	var getItinerary = function(itineraryId){
+		var query =
+			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
+			queryer.from([{
+				table: 'itinerary',
+				alias: 'main'
+			}, {
+				table: 'itinerary_user',
+				alias: 'iu'
+			}, {
+				table: 'user',
+				alias: 'u'
+			}]) +
+			queryer.where([{
+				key: 'main.id',
+				value: itineraryId,
+				equalType: true
+			}, {
+				key: 'iu.id_Itinerary',
+				value: 'main.id',
+				equalType: true,
+				noEscape: true,
+				link: 'AND'
+			}, {
+				key: 'iu.id_User',
+				value: 'u.id',
+				equalType: true,	
+				noEscape: true,
+				link: 'AND'
+			}]) +
+			queryer.orderBy(['main.id']);
+		
+		return query;
+	};
 
 	var getNbStepQuery = function () {
 		var query =
@@ -87,6 +157,8 @@ module.exports = function (options) {
 	};
 	
 	return {
-		"getItineraries": getItineraries
+		"getItineraries": getItineraries,
+		"getUserItineraries": getUserItineraries,
+		"getItinerary": getItinerary
 	}
 };

@@ -37,7 +37,7 @@ router.get('/', function (req, res, next) {
 				var itineraries = [];
 
 				results.forEach(function (element) {
-					if (exists(results, element.id) == null) {
+					if (exists(itineraries, element.id) == null) {
 						element.users = [{
 							id: element.userId,
 							name: element.userName
@@ -64,13 +64,31 @@ router.get('/user/:userid', function (req, res, next) {
 	var userId = req.params.userid;
 
 	// Get itineraries of a user in database with these parameters if exists
-	var itineraries = db.byFields('itinerary', {
-		id_User: userId
-	}, null, null, function (error, results, fields) {
+	var query = repository.getUserItineraries(userId);
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
-		else
-			res.respond(results);
+		else {
+			var itineraries = [];
+
+			results.forEach(function (element) {
+				if (exists(itineraries, element.id) == null) {
+					element.users = [{
+						id: element.userId,
+						name: element.userName
+					}];
+					itineraries.push(element);
+				}
+				else {
+					itineraries[itineraries.indexOf(exists(itineraries, element.id))].users.push({
+						id: element.userId,
+						name: element.userName
+					})
+				}
+			});
+
+			res.respond(itineraries, 200);
+		}
 	});
 });
 
@@ -79,13 +97,31 @@ router.get('/:itineraryid', function (req, res, next) {
 	var itineraryId = req.params.itineraryid;
 
 	// Get itineraries of a user in database with these parameters if exists
-	var itineraries = db.byFields('itinerary', {
-		id: itineraryId
-	}, null, null, function (error, results, fields) {
+	var query = repository.getItinerary(itineraryId);
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
-		else
-			res.respond(results.length > 0 ? results[0] : null);
+		else {
+			var itineraries = [];
+
+			results.forEach(function (element) {
+				if (exists(itineraries, element.id) == null) {
+					element.users = [{
+						id: element.userId,
+						name: element.userName
+					}];
+					itineraries.push(element);
+				}
+				else {
+					itineraries[itineraries.indexOf(exists(itineraries, element.id))].users.push({
+						id: element.userId,
+						name: element.userName
+					})
+				}
+			});
+
+			res.respond(itineraries, 200);
+		}
 	});
 });
 
