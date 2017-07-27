@@ -2,6 +2,8 @@ var express = require('express');
 var crypto = require('crypto');
 var multer = require('multer');
 var db = require('../helpers/db')();
+var pictureRepository = require('../repositories/picture')();
+var repository = require('../repositories/stop')();
 var dateHelper = require('../helpers/date')();
 var fs = require('fs');
 
@@ -14,6 +16,7 @@ var storage = multer.diskStorage({
         cb(null, Date.now() + '-' + file.originalname)
     }
 });
+
 // Instaciate plugin to manage file upload
 var upload = multer({
     dest: './uploads/',
@@ -29,9 +32,8 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
     var itineraryId = req.params.itineraryid;
 
     // Get itinerary stops of an itinerary in database with these parameters if exists
-    var stops = db.byFields('stop', {
-        id_Itinerary: itineraryId
-    }, 'position', null, function (error, results, fields) {
+    var query = repository.getItineraryStops(itineraryId);
+	var steps = db.query(query, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
         else
@@ -47,9 +49,8 @@ router.get('/:stopid', function (req, res, next) {
     var stopId = req.params.stopid;
 
     // Get itinerary stop in database with these parameters if exists
-    var itineraries = db.byFields('stop', {
-        id: stopId
-    }, null, null, function (error, results, fields) {
+    var query = repository.getStop(stopId);
+	var itineraries = db.query(query, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
         else
@@ -80,13 +81,13 @@ router.put('/:stopid', function (req, res, next) {
         lng: lng,
         position: position
     }, {
-            id: stopId
-        }, function (error, results, fields) {
-            if (error != null)
-                res.respond(error, 500);
-            else
-                res.respond([]);
-        });
+        id: stopId
+    }, function (error, results, fields) {
+        if (error != null)
+            res.respond(error, 500);
+        else
+            res.respond([]);
+    });
 });
 
 router.put('/', function (req, res, next) {
@@ -106,16 +107,16 @@ router.put('/', function (req, res, next) {
             lng: element.lng,
             position: element.position
         },
-            {
-                id: stopId
-            }, function (error, results, fields) {
-                if (error != null) {
-                    res.respond(error, 500);
-                    return;
-                }
-                else if (cpt++ == stops.length - 1)
-                    res.respond([]);
-            });
+        {
+            id: stopId
+        }, function (error, results, fields) {
+            if (error != null) {
+                res.respond(error, 500);
+                return;
+            }
+            else if (cpt++ == stops.length - 1)
+                res.respond([]);
+        });
     });
 });
 
@@ -154,9 +155,8 @@ router.delete('/:stopid', function (req, res, next) {
     // Get params from client
     var stopId = req.params.stopid;
 
-    db.byFields('picture', {
-        id_Stop: stopId
-    }, null, null, function (error, results, fields) {
+    var query = pictureRepository.getStopPicture(stopId);
+	db.query(query, function (error, results, fields) {
         results.forEach(function (element) {
             fs.unlink('./uploads/' + element.url);
         });
@@ -190,15 +190,15 @@ router.get('/:stopid/images', function (req, res, next) {
     var stopId = req.params.stopid;
 
     // Get itinerary stops of an itinerary in database with these parameters if exists
-    var stops = db.byFields('picture', {
-        id_Stop: stopId
-    }, null, null, function (error, results, fields) {
+    var query = pictureRepository.getStopPicture(stopId);
+	var stops = db.query(query, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
         else
             res.respond(results);
     });
 });
+
 /***********************************/
 /* POST add stop images for a step */
 /***********************************/

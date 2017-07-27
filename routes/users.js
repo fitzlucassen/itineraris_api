@@ -1,6 +1,7 @@
 var express = require('express');
 var crypto = require('crypto');
 var db = require('../helpers/db')();
+var repository = require('../repositories/user')();
 var dateHelper = require('../helpers/date')();
 var atob = require('atob');
 
@@ -19,13 +20,8 @@ router.get('/:username/:password', function (req, res, next) {
 	shasum.update(password);
 
 	// Get users in database with these parameters if exists
-	var users = db.byFields('user', {
-		multiple: {
-			name: username, 
-			email: username
-		}, 
-		password: shasum.digest('hex')
-	}, null, null, function(error, results, fields){
+	var query = repository.getUserByNameAndPassword(username, password);
+	var users = db.query(query, function(error, results, fields){
 		if(error != null)
 			res.respond(error, 500);
 		else{
@@ -51,31 +47,22 @@ router.post('/', function (req, res, next) {
 	var shasum = crypto.createHash('sha1');
 	shasum.update(password);
 
-	db.byFields('user', {
-		email: email
-	}, null, null, function(error, results, fields){
+	var query = repository.getUserByName(pseudo, email);
+	db.query(query, function(error, results, fields){
 		if(results.length > 0)
-			res.respond("C'est e-mail existe déjà", 409);
+			res.respond("Cet e-mail ou ce pseudo existe déjà", 409);
 		else {
-			db.byFields('user', {
-				name: pseudo
-			}, null, null, function(error, results, fields){
-				if(results.length > 0)
-					res.respond("Ce pseudo existe déjà", 409);
-				else{
-					// Insert the user in database
-					db.add('user', {
-						name: pseudo, 
-						email: email, 
-						password: shasum.digest('hex'), 
-						date: dateHelper.getDateTime()
-					}, function(error, results, fields){
-						if(error != null)
-							res.respond(error, 500);
-						else
-							res.respond({id: results.insertId});
-					});
-				}
+			// Insert the user in database
+			db.add('user', {
+				name: pseudo, 
+				email: email, 
+				password: shasum.digest('hex'), 
+				date: dateHelper.getDateTime()
+			}, function(error, results, fields){
+				if(error != null)
+					res.respond(error, 500);
+				else
+					res.respond({id: results.insertId});
 			});
 		}
 	});

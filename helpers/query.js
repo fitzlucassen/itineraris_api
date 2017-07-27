@@ -40,6 +40,9 @@ module.exports = function (options) {
             if(element.link)
                 query += element.link + ' ';
 
+            if(element.openBraket)
+                query += '(';
+
             // Manage = or IN operand between condition key and condition value
             query += element.key + ' ' + (element.equalType ? EQUAL : IN) + ' ';
 
@@ -56,6 +59,9 @@ module.exports = function (options) {
             // else put value
             else 
                 query += !element.noEscape ? ('\'' + element.value + '\' ') : element.value + ' ';
+
+            if(element.closeBraket)
+                query += ')';
         });
 
         return query + ' ';

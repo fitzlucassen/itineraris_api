@@ -1,6 +1,8 @@
 var express = require('express');
 var crypto = require('crypto');
 var multer = require('multer');
+var pictureRepository = require('../repositories/picture')();
+var repository = require('../repositories/step')();
 var db = require('../helpers/db')();
 var dateHelper = require('../helpers/date')();
 var fs = require('fs');
@@ -17,6 +19,7 @@ var storage = multer.diskStorage({
 		cb(null, Date.now() + '-' + file.originalname)
 	}
 });
+
 // Instaciate plugin to manage file upload
 var upload = multer({
 	dest: './uploads/',
@@ -36,9 +39,8 @@ router.get('/:stepid/images', function (req, res, next) {
 	var stepId = req.params.stepid;
 
 	// Get itinerary steps of an itinerary in database with these parameters if exists
-	var steps = db.byFields('picture', {
-		id_Step: stepId
-	}, null, null, function (error, results, fields) {
+	var query = pictureRepository.getStepPicture(stepId);
+	var steps = db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -132,9 +134,8 @@ router.delete('/images/:imageid', function (req, res, next) {
 	// Get params from client
 	var imageId = req.params.imageid;
 
-	db.byFields('picture', {
-		id: imageId
-	}, null,  null, function (error, results, fields) {
+	var query = pictureRepository.getPicture(imageId);
+	db.query(query, function (error, results, fields) {
 		if (results.length > 0) {
 			fs.unlink('./uploads/' + results[0].url);
 
@@ -164,9 +165,8 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 	var itineraryId = req.params.itineraryid;
 
 	// Get itinerary steps of an itinerary in database with these parameters if exists
-	var steps = db.byFields('step', {
-		id_Itinerary: itineraryId
-	}, 'position',  null, function (error, results, fields) {
+	var query = repository.getItinerarySteps(itineraryId);
+	var steps = db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -182,9 +182,8 @@ router.get('/:stepid', function (req, res, next) {
 	var stepId = req.params.stepid;
 
 	// Get itinerary step in database with these parameters if exists
-	var itineraries = db.byFields('step', {
-		id: stepId
-	}, null,  null, function (error, results, fields) {
+	var query = repository.getStep(itineraryId);
+	var itineraries = db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -294,9 +293,8 @@ router.delete('/:stepid', function (req, res, next) {
 	// Get params from client
 	var stepId = req.params.stepid;
 
-	db.byFields('picture', {
-		id_Step: stepId
-	}, null, null, function (error, results, fields) {
+	var query = pictureRepository.getStepPicture(stepId);
+	db.query(query, function (error, results, fields) {
 		results.forEach(function (element) {
 			fs.unlink('./uploads/' + element.url);
 		});

@@ -146,13 +146,13 @@ router.put('/:itineraryid', function (req, res, next) {
 		online: online,
 		likes: likes
 	}, {
-			id: itineraryId
-		}, function (error, results, fields) {
-			if (error != null)
-				res.respond(error, 500);
-			else
-				res.respond([]);
-		});
+		id: itineraryId
+	}, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else
+			res.respond([]);
+	});
 });
 
 /**********************/
