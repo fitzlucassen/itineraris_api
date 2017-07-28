@@ -9,7 +9,7 @@ module.exports = function (options) {
                 alias: 'main'
             }]) +
             queryer.where([{
-                key: id_Itinerary,
+                key: 'id_Itinerary',
                 value: itineraryId,
                 equalType: true
             }]) +
@@ -26,7 +26,7 @@ module.exports = function (options) {
                 alias: 'main'
             }]) +
             queryer.where([{
-                key: id,
+                key: 'id',
                 value: id,
                 equalType: true
             }]);

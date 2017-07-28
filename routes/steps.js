@@ -182,7 +182,7 @@ router.get('/:stepid', function (req, res, next) {
 	var stepId = req.params.stepid;
 
 	// Get itinerary step in database with these parameters if exists
-	var query = repository.getStep(itineraryId);
+	var query = repository.getStep(stepId);
 	var itineraries = db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);

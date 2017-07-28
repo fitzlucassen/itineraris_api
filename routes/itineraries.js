@@ -121,7 +121,7 @@ router.get('/:itineraryid', function (req, res, next) {
 				}
 			});
 
-			res.respond(itineraries, 200);
+			res.respond(itineraries.length > 0 ? itineraries[0] : itineraries, 200);
 		}
 	});
 });
