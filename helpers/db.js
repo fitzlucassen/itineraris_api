@@ -58,7 +58,10 @@ module.exports = function (options) {
 		if (values.length > 0)
 			values = values.substr(0, values.length - 2);
 
-		client.query('INSERT INTO ' + entity + ' (' + columns + ') VALUES (' + values + ')', function (error, results, fields) {
+		var query = 'INSERT INTO ' + entity + ' (' + columns + ') VALUES (' + values + ')';
+		console.log(query);
+
+		client.query(query, function (error, results, fields) {
 			callback(error, results, fields);
 		});
 	};

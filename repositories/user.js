@@ -1,8 +1,8 @@
 var queryer = require('../helpers/query')();
 
 module.exports = function (options) {
-    var getUserByNameAndPassword = function(name, password){
-        var query = 
+    var getUserByNameAndPassword = function (name, password) {
+        var query =
             queryer.select(['main.*']) +
             queryer.from([{
                 table: 'user',
@@ -28,15 +28,17 @@ module.exports = function (options) {
 
         return query;
     };
-    
-    var getUserByName = function(name, email){
-        var query = 
+
+    var getUserByName = function (name, email) {
+        var query =
             queryer.select(['main.*']) +
             queryer.from([{
                 table: 'user',
                 alias: 'main'
-            }]) +
-            queryer.where([{
+            }]);
+
+        if (name != '' || email != '') {
+            query += queryer.where([{
                 key: 'name',
                 value: name,
                 equalType: true,
@@ -48,6 +50,7 @@ module.exports = function (options) {
                 link: 'OR',
                 closeBraket: true
             }]);
+        }
 
         return query;
     }
