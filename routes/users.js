@@ -70,9 +70,9 @@ router.get('/:search', function (req, res, next) {
 	});
 });
 
-/*****************/
-/* POST add user */
-/*****************/
+/*********************************************/
+/* POST add an existing user in an itinerary */
+/*********************************************/
 router.post('/addInItinerary', function (req, res, next) {
 	// Get params from client
 	var userId = req.body.userId;
@@ -90,6 +90,9 @@ router.post('/addInItinerary', function (req, res, next) {
 	});
 });
 
+/*****************/
+/* POST add user */
+/*****************/
 router.post('/', function (req, res, next) {
 	// Get params from client
 	var pseudo = atob(req.body.name);
@@ -118,6 +121,26 @@ router.post('/', function (req, res, next) {
 					res.respond({id: results.insertId});
 			});
 		}
+	});
+});
+
+/*********************************************/
+/* DELETE add an existing user from an itinerary */
+/*********************************************/
+router.delete('/removeFromItinerary/:userId/:itineraryId', function (req, res, next) {
+	// Get params from client
+	var userId = req.params.userId;
+	var itineraryId = req.params.itineraryId;
+
+	// Delete the user in this itinerary database
+	db.remove('itinerary_user', {
+		id_Itinerary: itineraryId, 
+		id_User: userId 
+	}, function(error, results, fields){
+		if(error != null)
+			res.respond(error, 500);
+		else
+			res.respond([]);
 	});
 });
 
