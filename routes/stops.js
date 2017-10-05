@@ -41,6 +41,20 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
     });
 });
 
+router.get('/user/:userid', function (req, res, next) {
+    // Get params from client
+    var userid = req.params.userid;
+
+    // Get itinerary stops of an itinerary in database with these parameters if exists
+    var query = repository.getItinerariesStops(userid);
+	var steps = db.query(query, function (error, results, fields) {
+        if (error != null)
+            res.respond(error, 500);
+        else
+            res.respond(results);
+    });
+});
+
 /****************************/
 /* GET itinerary stop by id */
 /****************************/
