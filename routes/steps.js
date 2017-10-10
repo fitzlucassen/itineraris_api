@@ -199,6 +199,10 @@ router.get('/user/:userid', function (req, res, next) {
 					
 				tmpArray.push(element);
 			});
+
+			if(tmpArray.length > 0){
+				array.push(tmpArray);
+			}
             res.respond(array);
 		}
     });
