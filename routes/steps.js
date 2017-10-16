@@ -174,6 +174,40 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 	});
 });
 
+router.get('/user/:userid', function (req, res, next) {
+    // Get params from client
+    var userid = req.params.userid;
+
+    // Get itinerary stops of an itinerary in database with these parameters if exists
+    var query = repository.getItinerariesSteps(userid);
+	var steps = db.query(query, function (error, results, fields) {
+		var array = [];
+		var tmpArray = [];
+
+        if (error != null)
+            res.respond(error, 500);
+        else{
+			var currentItinerary = 0;
+			results.forEach(function(element){
+				if(currentItinerary > 0 && element.id_Itinerary != currentItinerary){
+					currentItinerary = element.id_Itinerary
+					array.push(tmpArray);
+					tmpArray = [];
+				}
+				else if(currentItinerary == 0)
+					currentItinerary = element.id_Itinerary;
+					
+				tmpArray.push(element);
+			});
+
+			if(tmpArray.length > 0){
+				array.push(tmpArray);
+			}
+            res.respond(array);
+		}
+    });
+});
+
 /****************************/
 /* GET itinerary step by id */
 /****************************/
