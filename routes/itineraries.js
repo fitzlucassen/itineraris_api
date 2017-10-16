@@ -1,5 +1,6 @@
 var express = require('express');
 var crypto = require('crypto');
+
 var repository = require('../repositories/itinerary')();
 var db = require('../helpers/db')();
 var dateHelper = require('../helpers/date')();
