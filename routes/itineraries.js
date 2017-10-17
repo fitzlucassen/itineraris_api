@@ -140,16 +140,9 @@ router.put('/:itineraryid', function (req, res, next) {
 	var online = req.body.online;
 	var likes = req.body.likes;
 
-	// Update the itinerary in database
-	db.update('itinerary', {
-		name: name,
-		country: country,
-		description: description,
-		online: online,
-		likes: likes
-	}, {
-		id: itineraryId
-	}, function (error, results, fields) {
+	var query = repository.updateItinerary(itineraryId, name, country, description, online, likes);
+
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -168,21 +161,15 @@ router.post('/', function (req, res, next) {
 	var userId = req.body.userId;
 	var online = req.body.online;
 
-	// Insert the itinerary in database
-	db.add('itinerary', {
-		name: name,
-		country: country,
-		description: description,
-		date: dateHelper.getDateTime(),
-		online: online
-	}, function (error, results, fields) {
+	var query = repository.addItinerary(name, country, description, dateHelper.getDateTime(), online);
+	
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
-		else{
-			db.add('itinerary_user', {
-				id_Itinerary: results.insertId,
-				id_User: userId
-			}, function(error2, results2, fields2){
+		else {
+			var query = repository.addUserToItinerary(results.insertId, userId);
+
+			db.query(query, function (error2, results2, fields2) {
 				res.respond({ id: results.insertId });
 			});
 		}
@@ -203,9 +190,9 @@ router.delete('/:itineraryid', function (req, res, next) {
 		if (error != null)
 			res.respond(error, 500);
 		else {
-			db.remove('itinerary', {
-				id: itineraryId,
-			}, function (error, results, fields) {
+			var query = repository.deleteItinerary(itineraryId);
+			
+			db.query(query, function (error, results, fields) {
 				if (error != null)
 					res.respond(error, 500);
 				else

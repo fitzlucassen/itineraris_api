@@ -27,7 +27,7 @@ module.exports = function (options) {
 			}, {
 				key: 'iu.id_User',
 				value: 'u.id',
-				equalType: true,	
+				equalType: true,
 				noEscape: true,
 				link: 'AND'
 			}]) +
@@ -36,7 +36,7 @@ module.exports = function (options) {
 		return query;
 	};
 
-	var getUserItineraries = function(userId){
+	var getUserItineraries = function (userId) {
 		var query =
 			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
 			queryer.from([{
@@ -62,16 +62,16 @@ module.exports = function (options) {
 			}, {
 				key: 'iu.id_User',
 				value: 'u.id',
-				equalType: true,	
+				equalType: true,
 				noEscape: true,
 				link: 'AND'
 			}]) +
 			queryer.orderBy(['main.id']);
-		
+
 		return query;
 	};
 
-	var getItinerary = function(itineraryId){
+	var getItinerary = function (itineraryId) {
 		var query =
 			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
 			queryer.from([{
@@ -97,12 +97,12 @@ module.exports = function (options) {
 			}, {
 				key: 'iu.id_User',
 				value: 'u.id',
-				equalType: true,	
+				equalType: true,
 				noEscape: true,
 				link: 'AND'
 			}]) +
 			queryer.orderBy(['main.id']);
-		
+
 		return query;
 	};
 
@@ -121,7 +121,7 @@ module.exports = function (options) {
 			}]);
 		return query;
 	};
-	var getFirstStepLat = function(){
+	var getFirstStepLat = function () {
 		var query =
 			queryer.select(['lat']) +
 			queryer.from([{
@@ -138,7 +138,7 @@ module.exports = function (options) {
 			queryer.limit(1);
 		return query;
 	};
-	var getFirstStepLng = function(){
+	var getFirstStepLng = function () {
 		var query =
 			queryer.select(['lng']) +
 			queryer.from([{
@@ -155,10 +155,76 @@ module.exports = function (options) {
 			queryer.limit(1);
 		return query;
 	};
-	
+
+	var addItinerary = function (name, country, description, date, online) {
+		var query =
+			queryer.insert('itinerary', ['name', 'country', 'description', 'date', 'online']) +
+			queryer.values([
+				[name, country, description, date, online]
+			]);
+
+		return query;
+	};
+
+	var updateItinerary = function (id, name, country, description, online, likes) {
+		var query =
+			queryer.update('itinerary') +
+			queryer.set([{
+				property: 'name',
+				value: name
+			}, {
+				property: 'country',
+				value: country
+			}, {
+				property: 'description',
+				value: description
+			}, {
+				property: 'likes',
+				value: likes
+			}, {
+				property: 'online',
+				value: online
+			}]) +
+			queryer.where([{
+				key: 'id',
+				value: id,
+				equalType: true,
+				noEscape: true
+			}])
+
+		return query;
+	};
+
+	var addUserToItinerary = function (itineraryId, userId) {
+		var query =
+			queryer.insert('itinerary_user', ['id_Itinerary', 'id_User']) +
+			queryer.values([
+				[itineraryId, userId]
+			]);
+
+		return query;
+	};
+
+	var deleteItinerary = function (itineraryId) {
+		var query =
+			queryer.delete('itinerary') +
+			queryer.where([{
+				key: 'id',
+				value: itineraryId,
+				equalType: true,
+				noEscape: true
+			}]);
+
+		return query;
+	}
+
 	return {
 		"getItineraries": getItineraries,
 		"getUserItineraries": getUserItineraries,
-		"getItinerary": getItinerary
+		"getItinerary": getItinerary,
+		"addItinerary": addItinerary,
+		"updateItinerary": updateItinerary,
+		"addUserToItinerary": addUserToItinerary,
+		"deleteItinerary": deleteItinerary
 	}
 };
