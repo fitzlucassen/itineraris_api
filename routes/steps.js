@@ -60,14 +60,18 @@ router.post('/:stepid/images', uploadType, function (req, res) {
 		var date = dateHelper.getDateTime();
 		var entity = {
 			url: element.filename,
+			caption: '',
 			date: date,
-			id_Step: stepId
+			id_Step: stepId,
+			id_Stop: null
 		};
 
 		array.push(entity);
 	});
 
-	db.addArray('picture', array, function (error, results, fields) {
+	var query = pictureRepository.addPictures(array);
+
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else {
@@ -86,13 +90,17 @@ router.post('/images', uploadType, function (req, res) {
 		var date = dateHelper.getDateTime();
 		var entity = {
 			url: element.filename,
-			date: date
+			date: date,
+			caption: '',
+			id_Step: null,
+			id_Stop: null
 		};
 
 		array.push(entity);
 	});
 
-	db.addArray('picture', array, function (error, results, fields) {
+	var query = pictureRepository.addPictures(array);
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else {
@@ -106,6 +114,7 @@ router.post('/images', uploadType, function (req, res) {
 /**************************/
 router.put('/images', function (req, res) {
 	var array = [];
+	var cpt = 0;
 
 	req.body.pictures.forEach(function (element) {
 		var entity = {
@@ -118,12 +127,18 @@ router.put('/images', function (req, res) {
 		array.push(entity);
 	});
 
-	db.updateArray('picture', array, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			res.respond(results);
-		}
+	array.forEach(function (element) {
+		var query = pictureRepository.updatePicture(element.id, element.id_Step, element.id_Stop, element.url, element.caption);
+
+		db.query(query, function (error, results, fields) {
+			if (++cpt == array.length) {
+				if (error != null)
+					res.respond(error, 500);
+				else {
+					res.respond(results);
+				}
+			}
+		});
 	});
 });
 
@@ -140,9 +155,10 @@ router.delete('/images/:imageid', function (req, res, next) {
 			fs.unlink('./uploads/' + results[0].url);
 
 			// Delete the itinerary step in database
-			db.remove('picture', {
-				id: imageId,
-			}, function (error, results, fields) {
+			var query = pictureRepository.deletePicture(imageId);
+			console.log(query);
+
+			db.query(query, function (error, results, fields) {
 				if (error != null)
 					res.respond(error, 500);
 				else {
@@ -174,38 +190,41 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 	});
 });
 
+/******************/
+/* GET user steps */
+/******************/
 router.get('/user/:userid', function (req, res, next) {
-    // Get params from client
-    var userid = req.params.userid;
+	// Get params from client
+	var userid = req.params.userid;
 
-    // Get itinerary stops of an itinerary in database with these parameters if exists
-    var query = repository.getItinerariesSteps(userid);
+	// Get itinerary stops of an itinerary in database with these parameters if exists
+	var query = repository.getItinerariesSteps(userid);
 	var steps = db.query(query, function (error, results, fields) {
 		var array = [];
 		var tmpArray = [];
 
-        if (error != null)
-            res.respond(error, 500);
-        else{
+		if (error != null)
+			res.respond(error, 500);
+		else {
 			var currentItinerary = 0;
-			results.forEach(function(element){
-				if(currentItinerary > 0 && element.id_Itinerary != currentItinerary){
+			results.forEach(function (element) {
+				if (currentItinerary > 0 && element.id_Itinerary != currentItinerary) {
 					currentItinerary = element.id_Itinerary
 					array.push(tmpArray);
 					tmpArray = [];
 				}
-				else if(currentItinerary == 0)
+				else if (currentItinerary == 0)
 					currentItinerary = element.id_Itinerary;
-					
+
 				tmpArray.push(element);
 			});
 
-			if(tmpArray.length > 0){
+			if (tmpArray.length > 0) {
 				array.push(tmpArray);
 			}
-            res.respond(array);
+			res.respond(array);
 		}
-    });
+	});
 });
 
 /****************************/
@@ -241,24 +260,20 @@ router.put('/:stepid', function (req, res, next) {
 	var position = req.body.position;
 
 	// Update the itinerary step in database
-	db.update('step', {
-		city: city,
-		date: date,
-		description: description,
-		lat: lat,
-		lng: lng,
-		type: type,
-		position: position
-	}, {
-			id: stepId
-		}, function (error, results, fields) {
-			if (error != null)
-				res.respond(error, 500);
-			else
-				res.respond([]);
-		});
+	var query = repository.updateStep(stepId, city, description, type, lat, lng, date, position);
+	console.log(query);
+
+	db.query(query, function (error, results, fields) {
+		if (error != null)
+			res.respond(error, 500);
+		else
+			res.respond([]);
+	});
 });
 
+/************************/
+/* PUT update all steps */
+/************************/
 router.put('/', function (req, res, next) {
 	// Get params from client
 	var steps = req.body.steps;
@@ -276,17 +291,17 @@ router.put('/', function (req, res, next) {
 			lng: element.lng,
 			type: element.type,
 			position: element.position
-		}, 
-		{
-			id: stepId
-		}, function (error, results, fields) {
-			if (error != null){
-				res.respond(error, 500);
-				return;
-			}
-			else if (cpt++ == steps.length - 1)
-				res.respond([]);
-		});
+		},
+			{
+				id: stepId
+			}, function (error, results, fields) {
+				if (error != null) {
+					res.respond(error, 500);
+					return;
+				}
+				else if (cpt++ == steps.length - 1)
+					res.respond([]);
+			});
 	});
 });
 
@@ -304,15 +319,10 @@ router.post('/', function (req, res, next) {
 	var type = req.body.type;
 
 	// Insert the itinerary step in database
-	db.add('step', {
-		city: city,
-		description: description,
-		id_Itinerary: itineraryId,
-		lat: lat,
-		lng: lng,
-		date: date,
-		type: type
-	}, function (error, results, fields) {
+	var query = repository.addStep(itineraryId, city, description, type, lat, lng, date, 0);
+	console.log(query);
+
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else
@@ -328,21 +338,23 @@ router.delete('/:stepid', function (req, res, next) {
 	var stepId = req.params.stepid;
 
 	var query = pictureRepository.getStepPicture(stepId);
+	console.log(query);
+	
 	db.query(query, function (error, results, fields) {
 		results.forEach(function (element) {
 			fs.unlink('./uploads/' + element.url);
 		});
 
 		// Delete the itinerary step in database
-		db.remove('picture', {
-			id_Step: stepId
-		}, function (error, results, fields) {
+		var query = pictureRepository.deleteStepPictures(stepId);
+		console.log(query);
+		
+		db.query(query, function (error, results, fields) {
 			if (error != null)
 				res.respond(error, 500);
 			else {
-				db.remove('step', {
-					id: stepId,
-				}, function (error, results, fields) {
+				var query = repository.deleteStep(stepId);
+				db.query(query, function (error, results, fields) {
 					if (error != null)
 						res.respond(error, 500);
 					else {

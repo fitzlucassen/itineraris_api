@@ -15,11 +15,11 @@ module.exports = function (options) {
     var replaceAll = function (replace, value, object) {
         var integer = (parseInt(object) + '');
 
-		if (integer != 'NaN' && integer.length == object.length)
-			return object;
-		else
-			return object.replace(new RegExp(replace, 'g'), value);
-	};
+        if (integer != 'NaN' && integer.length == (object + '').length)
+            return object;
+        else
+            return object.replace(new RegExp(replace, 'g'), value);
+    };
 
     var insert = function (table, entities) {
         var query = INSERT + ' ' + table;
@@ -73,11 +73,11 @@ module.exports = function (options) {
                 query += element.value + ', ';
         });
         query = query.substr(0, query.length - 2);
-        
+
         return query + ' ';
     };
 
-    var deleteFrom = function(table){
+    var deleteFrom = function (table) {
         var query = DELETE + ' ' + table;
         return query + ' ';
     };

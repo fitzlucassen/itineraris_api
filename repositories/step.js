@@ -1,7 +1,7 @@
 var queryer = require('../helpers/query')();
 
 module.exports = function (options) {
-    var getItinerarySteps = function(itineraryId){
+    var getItinerarySteps = function (itineraryId) {
         var query =
             queryer.select(['main.*']) +
             queryer.from([{
@@ -18,7 +18,7 @@ module.exports = function (options) {
         return query;
     };
 
-    var getItinerariesSteps = function(userId){
+    var getItinerariesSteps = function (userId) {
         var query =
             queryer.select(['main.*']) +
             queryer.from([{
@@ -46,7 +46,7 @@ module.exports = function (options) {
         return query;
     };
 
-    var getStep = function(id){
+    var getStep = function (id) {
         var query =
             queryer.select(['main.*']) +
             queryer.from([{
@@ -58,13 +58,74 @@ module.exports = function (options) {
                 value: id,
                 equalType: true
             }]);
-            
+
         return query;
     };
+
+    var addStep = function (itineraryId, city, description, type, lat, lng, date, position) {
+        var query =
+            queryer.insert('step', ['id_Itinerary', 'city', 'description', 'type', 'lat', 'lng', 'date', 'position']) +
+            queryer.values([
+                [itineraryId, city, description, type, lat, lng, date, position]
+            ]);
+
+        return query;
+    };
+
+    var updateStep = function (id, city, description, type, lat, lng, date, position) {
+        var query =
+            queryer.update('step') +
+            queryer.set([{
+                property: 'city',
+                value: city
+            }, {
+                property: 'type',
+                value: type
+            }, {
+                property: 'description',
+                value: description
+            }, {
+                property: 'lat',
+                value: lat
+            }, {
+                property: 'lng',
+                value: lng
+            }, {
+                property: 'date',
+                value: date
+            }, {
+                property: 'position',
+                value: position
+            }]) +
+            queryer.where([{
+                key: 'id',
+                value: id,
+                equalType: true,
+                noEscape: true
+            }])
+
+        return query;
+    };
+
+    var deleteStep = function (stepId) {
+		var query =
+			queryer.delete('step') +
+			queryer.where([{
+				key: 'id',
+				value: stepId,
+				equalType: true,
+				noEscape: true
+			}]);
+
+		return query;
+	}
 
     return {
         "getItinerarySteps": getItinerarySteps,
         "getStep": getStep,
-        "getItinerariesSteps": getItinerariesSteps
+        "getItinerariesSteps": getItinerariesSteps,
+        "addStep": addStep,
+        "updateStep": updateStep,
+        "deleteStep": deleteStep
     };
 };
