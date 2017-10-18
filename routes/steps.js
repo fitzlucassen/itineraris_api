@@ -283,25 +283,17 @@ router.put('/', function (req, res, next) {
 	steps.forEach(function (element) {
 		var stepId = element.id;
 
-		db.update('step', {
-			city: element.city,
-			date: element.date,
-			description: element.description,
-			lat: element.lat,
-			lng: element.lng,
-			type: element.type,
-			position: element.position
-		},
-			{
-				id: stepId
-			}, function (error, results, fields) {
-				if (error != null) {
-					res.respond(error, 500);
-					return;
-				}
-				else if (cpt++ == steps.length - 1)
-					res.respond([]);
-			});
+		var query = repository.updateStep(stepId, element.city, element.description, element.type, element.lat, element.lng, element.date, element.position);
+		console.log(query);
+
+		db.query(query, function (error, results, fields) {
+			if (error != null) {
+				res.respond(error, 500);
+				return;
+			}
+			else if (cpt++ == steps.length - 1)
+				res.respond([]);
+		});
 	});
 });
 
@@ -339,7 +331,7 @@ router.delete('/:stepid', function (req, res, next) {
 
 	var query = pictureRepository.getStepPicture(stepId);
 	console.log(query);
-	
+
 	db.query(query, function (error, results, fields) {
 		results.forEach(function (element) {
 			fs.unlink('./uploads/' + element.url);
@@ -348,7 +340,7 @@ router.delete('/:stepid', function (req, res, next) {
 		// Delete the itinerary step in database
 		var query = pictureRepository.deleteStepPictures(stepId);
 		console.log(query);
-		
+
 		db.query(query, function (error, results, fields) {
 			if (error != null)
 				res.respond(error, 500);

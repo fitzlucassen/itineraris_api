@@ -118,6 +118,19 @@ module.exports = function (options) {
 			}]);
 
 		return query;
+    }
+    
+    var deleteSteps = function (itineraryId) {
+		var query =
+			queryer.delete('step') +
+			queryer.where([{
+				key: 'id_Itinerary',
+				value: itineraryId,
+				equalType: true,
+				noEscape: true
+			}]);
+
+		return query;
 	}
 
     return {

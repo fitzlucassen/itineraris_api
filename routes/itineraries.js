@@ -2,6 +2,7 @@ var express = require('express');
 var crypto = require('crypto');
 
 var repository = require('../repositories/itinerary')();
+var stepRepository = require('../repositories/step')();
 var db = require('../helpers/db')();
 var dateHelper = require('../helpers/date')();
 
@@ -184,9 +185,10 @@ router.delete('/:itineraryid', function (req, res, next) {
 	var itineraryId = req.params.itineraryid;
 
 	// Delete the itinerary in database
-	db.remove('step', {
-		id_Itinerary: itineraryId,
-	}, function (error, results, fields) {
+	var query = stepRepository.deleteSteps(itineraryId);
+	console.log(query);
+
+	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else {

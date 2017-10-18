@@ -61,9 +61,67 @@ module.exports = function (options) {
         return query;
     };
 
+    var addStop = function (itineraryId, city, description, lat, lng, date, position) {
+        var query =
+            queryer.insert('stop', ['id_Itinerary', 'city', 'description', 'lat', 'lng', 'date', 'position']) +
+            queryer.values([
+                [itineraryId, city, description, lat, lng, date, position]
+            ]);
+
+        return query;
+    };
+
+    var updateStop = function (id, city, description, lat, lng, date, position) {
+        var query =
+            queryer.update('stop') +
+            queryer.set([{
+                property: 'city',
+                value: city
+            }, {
+                property: 'description',
+                value: description
+            }, {
+                property: 'lat',
+                value: lat
+            }, {
+                property: 'lng',
+                value: lng
+            }, {
+                property: 'date',
+                value: date
+            }, {
+                property: 'position',
+                value: position
+            }]) +
+            queryer.where([{
+                key: 'id',
+                value: id,
+                equalType: true,
+                noEscape: true
+            }])
+
+        return query;
+    };
+
+    var deleteStop = function (stopId) {
+		var query =
+			queryer.delete('stop') +
+			queryer.where([{
+				key: 'id',
+				value: stepId,
+				equalType: true,
+				noEscape: true
+			}]);
+
+		return query;
+	}
+
     return {
         "getItineraryStops": getItineraryStops,
         "getItinerariesStops": getItinerariesStops,
-        "getStop": getStop
+        "getStop": getStop,
+        "addStop": addStop,
+        "updateStop": updateStop,
+        "deleteStop": deleteStop
     };
 };
