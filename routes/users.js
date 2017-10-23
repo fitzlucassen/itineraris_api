@@ -10,11 +10,11 @@ var router = express.Router();
 router.get('/', function (req, res, next) {
 	// Get users in database with these parameters if exists
 	var query = repository.getUserByName('', '');
-	var users = db.query(query, function(error, results, fields){
-		if(error != null)
+	var users = db.query(query, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
-		else{
-			results.forEach(function(element){
+		else {
+			results.forEach(function (element) {
 				delete element.password;
 				delete element.date;
 			})
@@ -37,11 +37,11 @@ router.get('/:username/:password', function (req, res, next) {
 
 	// Get users in database with these parameters if exists
 	var query = repository.getUserByNameAndPassword(username, shasum.digest('hex'));
-	var users = db.query(query, function(error, results, fields){
-		if(error != null)
+	var users = db.query(query, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
-		else{
-			if(results[0]){
+		else {
+			if (results[0]) {
 				delete results[0].password;
 				delete results[0].date;
 			}
@@ -56,11 +56,11 @@ router.get('/:search', function (req, res, next) {
 
 	// Get users in database with these parameters if exists
 	var query = repository.getUserByName(username, username);
-	var users = db.query(query, function(error, results, fields){
-		if(error != null)
+	var users = db.query(query, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
-		else{
-			results.forEach(function(element){
+		else {
+			results.forEach(function (element) {
 				delete element.password;
 				delete element.date;
 			})
@@ -77,16 +77,18 @@ router.post('/addInItinerary', function (req, res, next) {
 	// Get params from client
 	var userId = req.body.userId;
 	var itineraryId = req.body.itineraryId;
-	
+
 	// Insert the user in database
 	db.add('itinerary_user', {
-		id_Itinerary: itineraryId, 
-		id_User: userId 
-	}, function(error, results, fields){
-		if(error != null)
+		id_Itinerary: itineraryId,
+		id_User: userId
+	}, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
 		else
-			res.respond({id: results.insertId});
+			res.respond({
+				id: results.insertId
+			});
 	});
 });
 
@@ -104,21 +106,18 @@ router.post('/', function (req, res, next) {
 	shasum.update(password);
 
 	var query = repository.getUserByName(pseudo, email);
-	db.query(query, function(error, results, fields){
-		if(results.length > 0)
+	db.query(query, function (error, results, fields) {
+		if (results.length > 0)
 			res.respond("Cet e-mail ou ce pseudo existe déjà", 409);
 		else {
 			// Insert the user in database
-			db.add('user', {
-				name: pseudo, 
-				email: email, 
-				password: shasum.digest('hex'), 
-				date: dateHelper.getDateTime()
-			}, function(error, results, fields){
-				if(error != null)
+			var query = repository.addUser(pseudo, email, shasum.digest('hex'), dateHelper.getDateTime());
+
+			db.query(query, function (error, results, fields) {
+				if (error != null)
 					res.respond(error, 500);
 				else
-					res.respond({id: results.insertId});
+					res.respond({ id: results.insertId });
 			});
 		}
 	});
@@ -134,10 +133,10 @@ router.delete('/removeFromItinerary/:userId/:itineraryId', function (req, res, n
 
 	// Delete the user in this itinerary database
 	db.remove('itinerary_user', {
-		id_Itinerary: itineraryId, 
-		id_User: userId 
-	}, function(error, results, fields){
-		if(error != null)
+		id_Itinerary: itineraryId,
+		id_User: userId
+	}, function (error, results, fields) {
+		if (error != null)
 			res.respond(error, 500);
 		else
 			res.respond([]);

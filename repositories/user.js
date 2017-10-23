@@ -55,8 +55,33 @@ module.exports = function (options) {
         return query;
     }
 
+    var addUser = function (name, email, password, date) {
+		var query =
+			queryer.insert('user', ['name', 'email', 'password', 'date']) +
+			queryer.values([
+				[name, email, password, date]
+			]);
+
+		return query;
+    };
+    
+    var deleteUser = function (userId) {
+		var query =
+			queryer.delete('user') +
+			queryer.where([{
+				key: 'id',
+				value: userId,
+				equalType: true,
+				noEscape: true
+			}]);
+
+		return query;
+    }
+
     return {
         "getUserByNameAndPassword": getUserByNameAndPassword,
-        "getUserByName": getUserByName
+        "getUserByName": getUserByName,
+        "addUser": addUser,
+        "deleteUser": deleteUser
     };
 };
