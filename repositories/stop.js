@@ -114,6 +114,19 @@ module.exports = function (options) {
 			}]);
 
 		return query;
+    }
+    
+    var deleteStops = function (itineraryId) {
+		var query =
+			queryer.delete('stop') +
+			queryer.where([{
+				key: 'id_Itinerary',
+				value: itineraryId,
+				equalType: true,
+				noEscape: true
+			}]);
+
+		return query;
 	}
 
     return {
@@ -122,6 +135,7 @@ module.exports = function (options) {
         "getStop": getStop,
         "addStop": addStop,
         "updateStop": updateStop,
-        "deleteStop": deleteStop
+        "deleteStop": deleteStop,
+        "deleteStops": deleteStops
     };
 };

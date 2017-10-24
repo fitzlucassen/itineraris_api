@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/fitzlucassen/itineraris_api#readme",
   "dependencies": {
+    "async": "^2.5.0",
     "atob": "^2.0.3",
     "body-parser": "~1.16.0",
     "cookie-parser": "~1.4.3",

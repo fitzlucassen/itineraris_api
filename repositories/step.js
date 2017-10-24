@@ -139,6 +139,7 @@ module.exports = function (options) {
         "getItinerariesSteps": getItinerariesSteps,
         "addStep": addStep,
         "updateStep": updateStep,
-        "deleteStep": deleteStep
+        "deleteStep": deleteStep,
+        "deleteSteps": deleteSteps
     };
 };

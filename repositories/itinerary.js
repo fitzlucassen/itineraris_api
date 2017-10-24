@@ -205,6 +205,25 @@ module.exports = function (options) {
 		return query;
 	};
 
+	var deleteUserFromItinerary = function (itineraryId, userId) {
+		var query =
+			queryer.delete('itinerary_user')
+			queryer.where([{
+				key: 'id_Itinerary',
+				value: itineraryId,
+				equalType: true,
+				noEscape: true
+			}, {
+				key: 'id_User',
+				value: userId,
+				equalType: true,
+				noEscape: true,
+				link: 'AND'
+			}]);
+
+		return query;
+	};
+
 	var deleteItinerary = function (itineraryId) {
 		var query =
 			queryer.delete('itinerary') +
@@ -225,6 +244,7 @@ module.exports = function (options) {
 		"addItinerary": addItinerary,
 		"updateItinerary": updateItinerary,
 		"addUserToItinerary": addUserToItinerary,
-		"deleteItinerary": deleteItinerary
+		"deleteItinerary": deleteItinerary,
+		"deleteUserFromItinerary": deleteUserFromItinerary
 	}
 };

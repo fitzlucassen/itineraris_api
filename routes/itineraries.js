@@ -1,9 +1,10 @@
 var express = require('express');
 var crypto = require('crypto');
+var async = require('async');
 
 var repository = require('../repositories/itinerary')();
 var stepRepository = require('../repositories/step')();
-var db = require('../helpers/db')();
+var stopRepository = require('../repositories/stop')();
 var dateHelper = require('../helpers/date')();
 
 var router = express.Router();
@@ -163,7 +164,7 @@ router.post('/', function (req, res, next) {
 	var online = req.body.online;
 
 	var query = repository.addItinerary(name, country, description, dateHelper.getDateTime(), online);
-	
+
 	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
@@ -185,15 +186,33 @@ router.delete('/:itineraryid', function (req, res, next) {
 	var itineraryId = req.params.itineraryid;
 
 	// Delete the itinerary in database
+	var promises = [];
 	var query = stepRepository.deleteSteps(itineraryId);
+	var query2 = stopRepository.deleteStops(itineraryId);
 	console.log(query);
+	console.log(query2);
+
+	async.parallel([
+		db.query(query, function (error, results, fields) { if (error != null) res.respond(error, 500); }),
+		db.query(query2, function (error, results, fields) { if (error != null) res.respond(error, 500); }),
+		function (err, resu) {
+			var query = repository.deleteItinerary(itineraryId);
+
+			db.query(query, function (error, results, fields) {
+				if (error != null)
+					res.respond(error, 500);
+				else
+					res.respond([]);
+			});
+		}
+	])
 
 	db.query(query, function (error, results, fields) {
 		if (error != null)
 			res.respond(error, 500);
 		else {
 			var query = repository.deleteItinerary(itineraryId);
-			
+
 			db.query(query, function (error, results, fields) {
 				if (error != null)
 					res.respond(error, 500);
