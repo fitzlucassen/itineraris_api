@@ -1,11 +1,15 @@
 var express = require('express');
 var crypto = require('crypto');
-var db = require('../helpers/db')();
-var repository = require('../repositories/user')();
-var dateHelper = require('../helpers/date')();
 var atob = require('atob');
 
+var userClassRepository = require('../repositories/user');
+
+var dateHelper = require('../helpers/date');
+var queryHelper = require('../helpers/query');
+
 var router = express.Router();
+
+var userRepository = new userClassRepository(queryHelper);
 
 router.get('/', function (req, res, next) {
 	// Get users in database with these parameters if exists

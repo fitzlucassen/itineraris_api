@@ -1,34 +1,36 @@
-var queryer = require('../helpers/query')();
+module.exports = class StepRepository {
+    constructor(queryHelper){
+		this.queryHelper = queryHelper;
+    }
 
-module.exports = function (options) {
-    var getItinerarySteps = function (itineraryId) {
+    getItinerarySteps(itineraryId) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'step',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id_Itinerary',
                 value: itineraryId,
                 equalType: true
             }]) +
-            queryer.orderBy(['position']);
+            this.queryHelper.orderBy(['position']);
 
         return query;
-    };
+    }
 
-    var getItinerariesSteps = function (userId) {
+    getItinerariesSteps(userId) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'step',
                 alias: 'main'
             }, {
                 table: 'itinerary_user',
                 alias: 'iu'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'main.id_Itinerary',
                 value: 'iu.id_Itinerary',
                 equalType: true,
@@ -40,42 +42,41 @@ module.exports = function (options) {
                 equalType: true,
                 link: 'AND'
             }]) +
-            queryer.orderBy(['id_Itinerary', 'position']);
+            this.queryHelper.orderBy(['id_Itinerary', 'position']);
 
-        console.log(query);
         return query;
-    };
+    }
 
-    var getStep = function (id) {
+    getStep(id) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'step',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id',
                 value: id,
                 equalType: true
             }]);
 
         return query;
-    };
+    }
 
-    var addStep = function (itineraryId, city, description, type, lat, lng, date, position) {
+    addStep(itineraryId, city, description, type, lat, lng, date, position) {
         var query =
-            queryer.insert('step', ['id_Itinerary', 'city', 'description', 'type', 'lat', 'lng', 'date', 'position']) +
-            queryer.values([
+            this.queryHelper.insert('step', ['id_Itinerary', 'city', 'description', 'type', 'lat', 'lng', 'date', 'position']) +
+            this.queryHelper.values([
                 [itineraryId, city, description, type, lat, lng, date, position]
             ]);
 
         return query;
-    };
+    }
 
-    var updateStep = function (id, city, description, type, lat, lng, date, position) {
+    updateStep(id, city, description, type, lat, lng, date, position) {
         var query =
-            queryer.update('step') +
-            queryer.set([{
+            this.queryHelper.update('step') +
+            this.queryHelper.set([{
                 property: 'city',
                 value: city
             }, {
@@ -97,7 +98,7 @@ module.exports = function (options) {
                 property: 'position',
                 value: position
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id',
                 value: id,
                 equalType: true,
@@ -105,12 +106,12 @@ module.exports = function (options) {
             }])
 
         return query;
-    };
+    }
 
-    var deleteStep = function (stepId) {
+    deleteStep(stepId) {
 		var query =
-			queryer.delete('step') +
-			queryer.where([{
+			this.queryHelper.delete('step') +
+			this.queryHelper.where([{
 				key: 'id',
 				value: stepId,
 				equalType: true,
@@ -120,10 +121,10 @@ module.exports = function (options) {
 		return query;
     }
     
-    var deleteSteps = function (itineraryId) {
+    deleteSteps(itineraryId) {
 		var query =
-			queryer.delete('step') +
-			queryer.where([{
+			this.queryHelper.delete('step') +
+			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: itineraryId,
 				equalType: true,
@@ -132,14 +133,4 @@ module.exports = function (options) {
 
 		return query;
 	}
-
-    return {
-        "getItinerarySteps": getItinerarySteps,
-        "getStep": getStep,
-        "getItinerariesSteps": getItinerariesSteps,
-        "addStep": addStep,
-        "updateStep": updateStep,
-        "deleteStep": deleteStep,
-        "deleteSteps": deleteSteps
-    };
-};
+}

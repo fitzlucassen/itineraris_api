@@ -1,11 +1,30 @@
+// Require external modules
 var express = require('express');
-var crypto = require('crypto');
 var multer = require('multer');
-var db = require('../helpers/db')();
-var pictureRepository = require('../repositories/picture')();
-var repository = require('../repositories/stop')();
-var dateHelper = require('../helpers/date')();
-var fs = require('fs');
+
+// Require internal repositories
+var pictureClassRepository = require('../repositories/picture');
+var stopClassRepository = require('../repositories/stop');
+
+// Require internal module
+var dateHelper = require('../helpers/date');
+var queryHelper = require('../helpers/query');
+var databaseHelper = require('../helpers/db');
+
+// Require internal services
+var stopClassService = require('../services/stop');
+var pictureClassService = require('../services/picture');
+
+// Create router
+var router = express.Router();
+
+// Create repositories
+var stopRepository = new stopClassRepository(queryHelper);
+var pictureRepository = new pictureClassRepository(queryHelper);
+
+// Create services
+var stopService = new stopClassService(stopRepository, pictureRepository, databaseHelper, dateHelper);
+var pictureService = new pictureClassService(pictureRepository, databaseHelper, dateHelper);
 
 // Override upload storage functions
 var storage = multer.diskStorage({
@@ -24,15 +43,53 @@ var upload = multer({
 });
 var uploadType = upload.array('uploads[]', 12);
 
-// Create router
-var router = express.Router();
+/************************************/
+/********** IMAGE MANAGING **********/
+/************************************/
 
+/***********************/
+/* GET get stop images */
+/***********************/
+router.get('/:stopid/images', function (req, res, next) {
+    // Get params from client
+    var stopId = req.params.stopid;
+
+    // Get itinerary stops of an itinerary in database with these parameters if exists
+    pictureService.getStopPictures(stopId, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
+	});
+});
+
+/************************/
+/* POST add stop images */
+/************************/
+router.post('/:stopid/images', uploadType, function (req, res) {
+    // Get params from client
+    var stopId = req.params.stopid;
+    var array = [];
+
+    pictureService.addStopPictures(stopId, req.files, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
+	});
+});
+
+/***********************************/
+/********** STOP MANAGING **********/
+/***********************************/
+
+/***********************/
+/* GET itinerary stops */
+/***********************/
 router.get('/itinerary/:itineraryid', function (req, res, next) {
     // Get params from client
     var itineraryId = req.params.itineraryid;
 
     // Get itinerary stops of an itinerary in database with these parameters if exists
-    var query = repository.getItineraryStops(itineraryId);
+    var query = stopRepository.getItineraryStops(itineraryId);
 	var steps = db.query(query, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
@@ -41,12 +98,15 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
     });
 });
 
+/******************/
+/* GET user stops */
+/******************/
 router.get('/user/:userid', function (req, res, next) {
     // Get params from client
     var userid = req.params.userid;
 
     // Get itinerary stops of an itinerary in database with these parameters if exists
-    var query = repository.getItinerariesStops(userid);
+    var query = stopRepository.getItinerariesStops(userid);
 	var steps = db.query(query, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
@@ -63,7 +123,7 @@ router.get('/:stopid', function (req, res, next) {
     var stopId = req.params.stopid;
 
     // Get itinerary stop in database with these parameters if exists
-    var query = repository.getStop(stopId);
+    var query = stopRepository.getStop(stopId);
 	var itineraries = db.query(query, function (error, results, fields) {
         if (error != null)
             res.respond(error, 500);
@@ -87,7 +147,7 @@ router.put('/:stopid', function (req, res, next) {
     var position = req.body.position;
 
     // Update the itinerary stop in database
-    var query = repository.updateStop(stopId, city, description, lat, lng, date, position);
+    var query = stopRepository.updateStop(stopId, city, description, lat, lng, date, position);
     console.log(query);
 
     db.query(query, function (error, results, fields) {
@@ -98,6 +158,9 @@ router.put('/:stopid', function (req, res, next) {
     });
 });
 
+/************************/
+/* PUT update all stops */
+/************************/
 router.put('/', function (req, res, next) {
     // Get params from client
     var stops = req.body.stops;
@@ -107,7 +170,7 @@ router.put('/', function (req, res, next) {
     stops.forEach(function (element) {
         var stopId = element.id;
 
-        var query = repository.updateStop(stopId, element.city, element.description, element.lat, element.lng, element.date, element.position);
+        var query = stopRepository.updateStop(stopId, element.city, element.description, element.lat, element.lng, element.date, element.position);
         console.log(query);
     
         db.query(query, function (error, results, fields) {
@@ -134,7 +197,7 @@ router.post('/', function (req, res, next) {
     var itineraryId = req.body.itineraryId;
 
     // Insert the itinerary stop in database
-    var query = repository.addStop(itineraryId, city, description, lat, lng, date, 0);
+    var query = stopRepository.addStop(itineraryId, city, description, lat, lng, date, 0);
     console.log(query);
 
     db.query(query, function (error, results, fields) {
@@ -166,7 +229,7 @@ router.delete('/:stopid', function (req, res, next) {
             if (error != null)
                 res.respond(error, 500);
             else {
-                var query = repository.deleteStop(stopId);
+                var query = stopRepository.deleteStop(stopId);
                 console.log(query);
 
                 db.query(query, function (error, results, fields) {
@@ -178,56 +241,6 @@ router.delete('/:stopid', function (req, res, next) {
                 });
             }
         });
-    });
-});
-
-/***********************/
-/* GET get step images */
-/***********************/
-router.get('/:stopid/images', function (req, res, next) {
-    // Get params from client
-    var stopId = req.params.stopid;
-
-    // Get itinerary stops of an itinerary in database with these parameters if exists
-    var query = pictureRepository.getStopPicture(stopId);
-	var stops = db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else
-            res.respond(results);
-    });
-});
-
-/***********************************/
-/* POST add stop images for a step */
-/***********************************/
-router.post('/:stopid/images', uploadType, function (req, res) {
-    // Get params from client
-    var stopId = req.params.stopid;
-    var array = [];
-
-    req.files.forEach(function (element) {
-        var date = dateHelper.getDateTime();
-        var entity = {
-            url: element.filename,
-            date: date,
-            id_Stop: stopId,
-            id_Step: null,
-            caption: ''
-        };
-
-        array.push(entity);
-    });
-
-    var query = pictureRepository.addPictures(array);
-    console.log(query);
-    
-    db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else {
-            res.respond(results);
-        }
     });
 });
 

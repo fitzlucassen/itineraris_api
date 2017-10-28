@@ -1,27 +1,30 @@
-module.exports = function (options) {
-    const INSERT = 'INSERT INTO';
-    const UPDATE = 'UPDATE';
-    const DELETE = 'DELETE FROM';
-    const VALUES = 'VALUES';
-    const SET = 'SET';
-    const SELECT = 'SELECT';
-    const FROM = 'FROM';
-    const WHERE = 'WHERE';
-    const IN = 'IN';
-    const ORDER = 'ORDER BY';
-    const LIMIT = 'LIMIT';
-    const EQUAL = '=';
+const INSERT = 'INSERT INTO';
+const UPDATE = 'UPDATE';
+const DELETE = 'DELETE FROM';
+const VALUES = 'VALUES';
+const SET = 'SET';
+const SELECT = 'SELECT';
+const FROM = 'FROM';
+const WHERE = 'WHERE';
+const IN = 'IN';
+const ORDER = 'ORDER BY';
+const LIMIT = 'LIMIT';
+const EQUAL = '=';
 
-    var replaceAll = function (replace, value, object) {
-        var integer = (parseInt(object) + '');
+var replaceAll = function (replace, value, object) {
+    var integer = (parseInt(object) + '');
 
-        if (integer != 'NaN' && integer.length == (object + '').length)
-            return object;
-        else
-            return object.replace(new RegExp(replace, 'g'), value);
-    };
+    if (integer != 'NaN' && integer.length == (object + '').length)
+        return object;
+    else
+        return object.replace(new RegExp(replace, 'g'), value);
+};
 
-    var insert = function (table, entities) {
+class QueryHelper {
+    constructor(){
+    }
+
+    insert(table, entities) {
         var query = INSERT + ' ' + table;
 
         query += ' (';
@@ -33,9 +36,9 @@ module.exports = function (options) {
         query += ') ';
 
         return query;
-    };
+    }
 
-    var values = function (values) {
+    values(values) {
         var query = VALUES + ' ';
 
         values.forEach(function (element) {
@@ -54,14 +57,14 @@ module.exports = function (options) {
         query = query.substr(0, query.length - 2);
 
         return query + ' ';
-    };
+    }
 
-    var update = function (table) {
+    update(table) {
         var query = UPDATE + ' ' + table;
         return query + ' ';
-    };
+    }
 
-    var set = function (values) {
+    set(values) {
         var query = SET + ' ';
 
         values.forEach(function (element) {
@@ -75,14 +78,14 @@ module.exports = function (options) {
         query = query.substr(0, query.length - 2);
 
         return query + ' ';
-    };
+    }
 
-    var deleteFrom = function (table) {
+    delete(table) {
         var query = DELETE + ' ' + table;
         return query + ' ';
-    };
+    }
 
-    var select = function (entities) {
+    select(entities) {
         var query = SELECT + ' ';
 
         entities.forEach(function (element) {
@@ -93,9 +96,9 @@ module.exports = function (options) {
         query = query.substr(0, query.length - 2);
 
         return query + ' ';
-    };
+    }
 
-    var from = function (tables) {
+    from(tables) {
         var query = FROM + ' ';
 
         tables.forEach(function (element) {
@@ -105,9 +108,9 @@ module.exports = function (options) {
         query = query.substr(0, query.length - 2);
 
         return query + ' ';
-    };
+    }
 
-    var where = function (conditions) {
+    where(conditions) {
         var query = WHERE + ' ';
 
         conditions.forEach(function (element) {
@@ -140,9 +143,9 @@ module.exports = function (options) {
         });
 
         return query + ' ';
-    };
+    }
 
-    var orderBy = function (values) {
+    orderBy(values) {
         var query = ORDER + ' ';
 
         values.forEach(function (element) {
@@ -153,24 +156,13 @@ module.exports = function (options) {
         query = query.substr(0, query.length - 2);
 
         return query + ' ';
-    };
+    }
 
-    var limit = function (value) {
+    limit(value) {
         var query = LIMIT + ' ' + value;
 
         return query + ' ';
-    };
+    }
+}
 
-    return {
-        "insert": insert,
-        "values": values,
-        "update": update,
-        "set": set,
-        "select": select,
-        "from": from,
-        "where": where,
-        "orderBy": orderBy,
-        "limit": limit,
-        "delete": deleteFrom
-    };
-};
+module.exports = new QueryHelper();

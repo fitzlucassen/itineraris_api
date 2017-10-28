@@ -1,14 +1,16 @@
-var queryer = require('../helpers/query')();
-
-module.exports = function (options) {
-    var getStepPicture = function (stepId) {
+module.exports = class PictureRepository {
+    constructor(queryHelper){
+		this.queryHelper = queryHelper;
+    }
+    
+    getStepPicture(stepId) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'picture',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id_Step',
                 value: stepId,
                 equalType: true
@@ -17,14 +19,14 @@ module.exports = function (options) {
         return query;
     };
 
-    var getStopPicture = function (stopId) {
+    getStopPicture(stopId) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'picture',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id_Stop',
                 value: stopId,
                 equalType: true
@@ -33,14 +35,14 @@ module.exports = function (options) {
         return query;
     };
 
-    var getPicture = function (id) {
+    getPicture(id) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'picture',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id',
                 value: id,
                 equalType: true
@@ -49,7 +51,7 @@ module.exports = function (options) {
         return query;
     };
 
-    var addPictures = function (values) {
+    addPictures(values) {
         var properties = [];
         var toAdd = [];
 
@@ -66,15 +68,15 @@ module.exports = function (options) {
         properties.push('caption');
         properties.push('date');
 
-        var query = queryer.insert('picture', properties);
-        query += queryer.values(toAdd);
+        var query = this.queryHelper.insert('picture', properties);
+        query += this.queryHelper.values(toAdd);
 
         return query;
     };
 
-    var updatePicture = function (id, stepId, stopId, url, caption) {
+    updatePicture(id, stepId, stopId, url, caption) {
         var properties = [];
-        var query = queryer.update('picture');
+        var query = this.queryHelper.update('picture');
 
         if (stepId)
             properties.push({ property: 'id_Step', value: stepId });
@@ -83,8 +85,8 @@ module.exports = function (options) {
         if (caption)
             properties.push({ property: 'caption', value: caption });
 
-        query += queryer.set(properties) +
-            queryer.where([{
+        query += this.queryHelper.set(properties) +
+            this.queryHelper.where([{
                 key: 'id',
                 value: id,
                 equalType: true,
@@ -94,10 +96,10 @@ module.exports = function (options) {
         return query;
     };
 
-    var deletePicture = function (pictureId) {
+    deletePicture(pictureId) {
         var query =
-            queryer.delete('picture') +
-            queryer.where([{
+            this.queryHelper.delete('picture') +
+            this.queryHelper.where([{
                 key: 'id',
                 value: pictureId,
                 equalType: true,
@@ -107,10 +109,10 @@ module.exports = function (options) {
         return query;
     }
 
-    var deleteStepPictures = function (stepId) {
+    deleteStepPictures(stepId) {
         var query =
-            queryer.delete('picture') +
-            queryer.where([{
+            this.queryHelper.delete('picture') +
+            this.queryHelper.where([{
                 key: 'id_Step',
                 value: stepId,
                 equalType: true,
@@ -120,10 +122,10 @@ module.exports = function (options) {
         return query;
     }
 
-    var deleteStopPictures = function (stopId) {
+    deleteStopPictures(stopId) {
         var query =
-            queryer.delete('picture') +
-            queryer.where([{
+            this.queryHelper.delete('picture') +
+            this.queryHelper.where([{
                 key: 'id_Stop',
                 value: stopId,
                 equalType: true,
@@ -132,15 +134,4 @@ module.exports = function (options) {
 
         return query;
     }
-
-    return {
-        "getStepPicture": getStepPicture,
-        "getStopPicture": getStopPicture,
-        "getPicture": getPicture,
-        "addPictures": addPictures,
-        "updatePicture": updatePicture,
-        "deletePicture": deletePicture,
-        "deleteStepPictures": deleteStepPictures,
-        "deleteStopPictures": deleteStopPictures
-    };
-};
+}

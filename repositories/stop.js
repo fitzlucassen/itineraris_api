@@ -1,34 +1,36 @@
-var queryer = require('../helpers/query')();
+module.exports = class StopRepository {
+    constructor(queryHelper){
+		this.queryHelper = queryHelper;
+    }
 
-module.exports = function (options) {
-    var getItineraryStops = function(itineraryId){
+    getItineraryStops(itineraryId){
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'stop',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id_Itinerary',
                 value: itineraryId,
                 equalType: true
             }]) +
-            queryer.orderBy(['position']);
+            this.queryHelper.orderBy(['position']);
 
         return query;
-    };
+    }
 
-    var getItinerariesStops = function(userId){
+    getItinerariesStops(userId){
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'stop',
                 alias: 'main'
             }, {
                 table: 'itinerary_user',
                 alias: 'iu'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'main.id_Itinerary',
                 value: 'iu.id_Itinerary',
                 equalType: true,
@@ -40,41 +42,41 @@ module.exports = function (options) {
                 equalType: true,
                 link: 'AND'
             }]) +
-            queryer.orderBy(['position']);
+            this.queryHelper.orderBy(['position']);
 
         return query;
-    };
+    }
 
-    var getStop = function(id){
+    getStop(id){
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'stop',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id',
                 value: id,
                 equalType: true
             }]);
             
         return query;
-    };
+    }
 
-    var addStop = function (itineraryId, city, description, lat, lng, date, position) {
+    addStop(itineraryId, city, description, lat, lng, date, position) {
         var query =
-            queryer.insert('stop', ['id_Itinerary', 'city', 'description', 'lat', 'lng', 'date', 'position']) +
-            queryer.values([
+            this.queryHelper.insert('stop', ['id_Itinerary', 'city', 'description', 'lat', 'lng', 'date', 'position']) +
+            this.queryHelper.values([
                 [itineraryId, city, description, lat, lng, date, position]
             ]);
 
         return query;
-    };
+    }
 
-    var updateStop = function (id, city, description, lat, lng, date, position) {
+    updateStop(id, city, description, lat, lng, date, position) {
         var query =
-            queryer.update('stop') +
-            queryer.set([{
+            this.queryHelper.update('stop') +
+            this.queryHelper.set([{
                 property: 'city',
                 value: city
             }, {
@@ -93,7 +95,7 @@ module.exports = function (options) {
                 property: 'position',
                 value: position
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'id',
                 value: id,
                 equalType: true,
@@ -101,12 +103,12 @@ module.exports = function (options) {
             }])
 
         return query;
-    };
+    }
 
-    var deleteStop = function (stopId) {
+    deleteStop(stopId) {
 		var query =
-			queryer.delete('stop') +
-			queryer.where([{
+			this.queryHelper.delete('stop') +
+			this.queryHelper.where([{
 				key: 'id',
 				value: stepId,
 				equalType: true,
@@ -116,10 +118,10 @@ module.exports = function (options) {
 		return query;
     }
     
-    var deleteStops = function (itineraryId) {
+    deleteStops(itineraryId) {
 		var query =
-			queryer.delete('stop') +
-			queryer.where([{
+			this.queryHelper.delete('stop') +
+			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: itineraryId,
 				equalType: true,
@@ -128,14 +130,4 @@ module.exports = function (options) {
 
 		return query;
 	}
-
-    return {
-        "getItineraryStops": getItineraryStops,
-        "getItinerariesStops": getItinerariesStops,
-        "getStop": getStop,
-        "addStop": addStop,
-        "updateStop": updateStop,
-        "deleteStop": deleteStop,
-        "deleteStops": deleteStops
-    };
-};
+}

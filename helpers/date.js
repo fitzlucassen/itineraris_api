@@ -1,14 +1,17 @@
-module.exports = function (options) {
-    var getDateTime = function(){
+class DateHelper {
+    constructor() {
+    }
+
+    getCurrentDateTime() {
         var date = new Date();
 
         var hour = date.getHours();
         hour = (hour < 10 ? "0" : "") + hour;
 
-        var min  = date.getMinutes();
+        var min = date.getMinutes();
         min = (min < 10 ? "0" : "") + min;
 
-        var sec  = date.getSeconds();
+        var sec = date.getSeconds();
         sec = (sec < 10 ? "0" : "") + sec;
 
         var year = date.getFullYear();
@@ -16,13 +19,11 @@ module.exports = function (options) {
         var month = date.getMonth() + 1;
         month = (month < 10 ? "0" : "") + month;
 
-        var day  = date.getDate();
+        var day = date.getDate();
         day = (day < 10 ? "0" : "") + day;
 
         return year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
-    };
-
-    return {
-        "getDateTime": getDateTime
     }
-};
+}
+
+module.exports = new DateHelper();

@@ -1,14 +1,16 @@
-var queryer = require('../helpers/query')();
+module.exports = class UserRepository {
+    constructor(queryHelper){
+		this.queryHelper = queryHelper;
+    }
 
-module.exports = function (options) {
-    var getUserByNameAndPassword = function (name, password) {
+    getUserByNameAndPassword(name, password) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'user',
                 alias: 'main'
             }]) +
-            queryer.where([{
+            this.queryHelper.where([{
                 key: 'name',
                 value: name,
                 equalType: true,
@@ -27,18 +29,18 @@ module.exports = function (options) {
             }]);
 
         return query;
-    };
+    }
 
-    var getUserByName = function (name, email) {
+    getUserByName(name, email) {
         var query =
-            queryer.select(['main.*']) +
-            queryer.from([{
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
                 table: 'user',
                 alias: 'main'
             }]);
 
         if (name != '' || email != '') {
-            query += queryer.where([{
+            query += this.queryHelper.where([{
                 key: 'name',
                 value: name,
                 equalType: true,
@@ -55,20 +57,20 @@ module.exports = function (options) {
         return query;
     }
 
-    var addUser = function (name, email, password, date) {
+    addUser(name, email, password, date) {
 		var query =
-			queryer.insert('user', ['name', 'email', 'password', 'date']) +
-			queryer.values([
+			this.queryHelper.insert('user', ['name', 'email', 'password', 'date']) +
+			this.queryHelper.values([
 				[name, email, password, date]
 			]);
 
 		return query;
-    };
+    }
     
-    var deleteUser = function (userId) {
+    deleteUser(userId) {
 		var query =
-			queryer.delete('user') +
-			queryer.where([{
+			this.queryHelper.delete('user') +
+			this.queryHelper.where([{
 				key: 'id',
 				value: userId,
 				equalType: true,
@@ -77,11 +79,4 @@ module.exports = function (options) {
 
 		return query;
     }
-
-    return {
-        "getUserByNameAndPassword": getUserByNameAndPassword,
-        "getUserByName": getUserByName,
-        "addUser": addUser,
-        "deleteUser": deleteUser
-    };
-};
+}

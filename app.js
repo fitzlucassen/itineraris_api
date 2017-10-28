@@ -5,7 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var db = require('./helpers/db')();
+var db = require('./helpers/db');
 require('./helpers/response');
 
 var index = require('./routes/index');
@@ -58,6 +58,6 @@ app.use(function (err, req, res, next) {
 });
 
 // Close open DB connection when server exits
-app.on('close', db.close); 
+app.on('close', db.disconnect); 
 
 module.exports = app;

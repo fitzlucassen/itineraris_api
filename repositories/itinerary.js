@@ -1,10 +1,12 @@
-var queryer = require('../helpers/query')();
+module.exports = class ItineraryRepository {
+	constructor(queryHelper){
+		this.queryHelper = queryHelper;
+	}
 
-module.exports = function (options) {
-	var getItineraries = function () {
+	getItineraries() {
 		var query =
-			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
-			queryer.from([{
+			this.queryHelper.select(['main.*', '(' + this.getNbStepQuery() + ') as nbStep', '(' + this.getFirstStepLat() + ') as stepLat', '(' + this.getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
+			this.queryHelper.from([{
 				table: 'itinerary',
 				alias: 'main'
 			}, {
@@ -14,7 +16,7 @@ module.exports = function (options) {
 				table: 'user',
 				alias: 'u'
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'main.online',
 				value: 1,
 				equalType: true
@@ -31,15 +33,15 @@ module.exports = function (options) {
 				noEscape: true,
 				link: 'AND'
 			}]) +
-			queryer.orderBy(['nbStep', 'likes']);
+			this.queryHelper.orderBy(['nbStep', 'likes']);
 
 		return query;
-	};
+	}
 
-	var getUserItineraries = function (userId) {
+	getUserItineraries(userId) {
 		var query =
-			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
-			queryer.from([{
+			this.queryHelper.select(['main.*', '(' + this.getNbStepQuery() + ') as nbStep', '(' + this.getFirstStepLat() + ') as stepLat', '(' + this.getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
+			this.queryHelper.from([{
 				table: 'itinerary',
 				alias: 'main'
 			}, {
@@ -49,7 +51,7 @@ module.exports = function (options) {
 				table: 'user',
 				alias: 'u'
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'u.id',
 				value: userId,
 				equalType: true
@@ -66,15 +68,15 @@ module.exports = function (options) {
 				noEscape: true,
 				link: 'AND'
 			}]) +
-			queryer.orderBy(['main.id']);
+			this.queryHelper.orderBy(['main.id']);
 
 		return query;
-	};
+	}
 
-	var getItinerary = function (itineraryId) {
+	getItinerary(itineraryId) {
 		var query =
-			queryer.select(['main.*', '(' + getNbStepQuery() + ') as nbStep', '(' + getFirstStepLat() + ') as stepLat', '(' + getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
-			queryer.from([{
+			this.queryHelper.select(['main.*', '(' + this.getNbStepQuery() + ') as nbStep', '(' + this.getFirstStepLat() + ') as stepLat', '(' + this.getFirstStepLng() + ') as stepLng', 'u.id as userId', 'u.name as userName']) +
+			this.queryHelper.from([{
 				table: 'itinerary',
 				alias: 'main'
 			}, {
@@ -84,7 +86,7 @@ module.exports = function (options) {
 				table: 'user',
 				alias: 'u'
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'main.id',
 				value: itineraryId,
 				equalType: true
@@ -101,75 +103,77 @@ module.exports = function (options) {
 				noEscape: true,
 				link: 'AND'
 			}]) +
-			queryer.orderBy(['main.id']);
+			this.queryHelper.orderBy(['main.id']);
 
 		return query;
-	};
+	}
 
-	var getNbStepQuery = function () {
+	getNbStepQuery() {
 		var query =
-			queryer.select(['COUNT(*) as nbStep']) +
-			queryer.from([{
+			this.queryHelper.select(['COUNT(*) as nbStep']) +
+			this.queryHelper.from([{
 				table: 'step',
 				alias: 's'
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: 'main.id',
 				equalType: true,
 				noEscape: true
 			}]);
 		return query;
-	};
-	var getFirstStepLat = function () {
+	}
+
+	getFirstStepLat() {
 		var query =
-			queryer.select(['lat']) +
-			queryer.from([{
+			this.queryHelper.select(['lat']) +
+			this.queryHelper.from([{
 				table: 'step',
 				alias: 's'
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: 'main.id',
 				equalType: true,
 				noEscape: true
 			}]) +
-			queryer.orderBy(['id']) +
-			queryer.limit(1);
+			this.queryHelper.orderBy(['id']) +
+			this.queryHelper.limit(1);
 		return query;
-	};
-	var getFirstStepLng = function () {
+	}
+
+	getFirstStepLng() {
 		var query =
-			queryer.select(['lng']) +
-			queryer.from([{
+			this.queryHelper.select(['lng']) +
+			this.queryHelper.from([{
 				table: 'step',
 				alias: 's'
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: 'main.id',
 				equalType: true,
 				noEscape: true
 			}]) +
-			queryer.orderBy(['id']) +
-			queryer.limit(1);
+			this.queryHelper.orderBy(['id']) +
+			this.queryHelper.limit(1);
 		return query;
 	};
 
-	var addItinerary = function (name, country, description, date, online) {
+	addItinerary(name, country, description, date, online) {
 		var query =
-			queryer.insert('itinerary', ['name', 'country', 'description', 'date', 'online']) +
-			queryer.values([
+			this.queryHelper.insert('itinerary', ['name', 'country', 'description', 'date', 'online']) +
+			this.queryHelper.values([
 				[name, country, description, date, online]
 			]);
 
 		return query;
 	};
 
-	var updateItinerary = function (id, name, country, description, online, likes) {
+	updateItinerary(id, name, country, description, online, likes) {
 		var query =
-			queryer.update('itinerary') +
-			queryer.set([{
+			this.queryHelper.update('itinerary') +
+			this.queryHelper.set([{
 				property: 'name',
 				value: name
 			}, {
@@ -185,7 +189,7 @@ module.exports = function (options) {
 				property: 'online',
 				value: online
 			}]) +
-			queryer.where([{
+			this.queryHelper.where([{
 				key: 'id',
 				value: id,
 				equalType: true,
@@ -195,20 +199,20 @@ module.exports = function (options) {
 		return query;
 	};
 
-	var addUserToItinerary = function (itineraryId, userId) {
+	addUserToItinerary(itineraryId, userId) {
 		var query =
-			queryer.insert('itinerary_user', ['id_Itinerary', 'id_User']) +
-			queryer.values([
+			this.queryHelper.insert('itinerary_user', ['id_Itinerary', 'id_User']) +
+			this.queryHelper.values([
 				[itineraryId, userId]
 			]);
 
 		return query;
 	};
 
-	var deleteUserFromItinerary = function (itineraryId, userId) {
+	deleteUserFromItinerary(itineraryId, userId) {
 		var query =
-			queryer.delete('itinerary_user')
-			queryer.where([{
+			this.queryHelper.delete('itinerary_user')
+			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: itineraryId,
 				equalType: true,
@@ -224,10 +228,10 @@ module.exports = function (options) {
 		return query;
 	};
 
-	var deleteItinerary = function (itineraryId) {
+	deleteItinerary(itineraryId) {
 		var query =
-			queryer.delete('itinerary') +
-			queryer.where([{
+			this.queryHelper.delete('itinerary') +
+			this.queryHelper.where([{
 				key: 'id',
 				value: itineraryId,
 				equalType: true,
@@ -236,15 +240,4 @@ module.exports = function (options) {
 
 		return query;
 	}
-
-	return {
-		"getItineraries": getItineraries,
-		"getUserItineraries": getUserItineraries,
-		"getItinerary": getItinerary,
-		"addItinerary": addItinerary,
-		"updateItinerary": updateItinerary,
-		"addUserToItinerary": addUserToItinerary,
-		"deleteItinerary": deleteItinerary,
-		"deleteUserFromItinerary": deleteUserFromItinerary
-	}
-};
+}

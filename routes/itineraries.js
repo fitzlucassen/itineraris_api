@@ -1,131 +1,71 @@
+// Require external modules
 var express = require('express');
 var crypto = require('crypto');
 var async = require('async');
 
-var repository = require('../repositories/itinerary')();
-var stepRepository = require('../repositories/step')();
-var stopRepository = require('../repositories/stop')();
-var dateHelper = require('../helpers/date')();
+// Require internal module
+var dateHelper = require('../helpers/date');
+var databaseHelper = require('../helpers/db');
+var queryHelper = require('../helpers/query');
 
+// Require internal repositories
+var itineraryClassRepository = require('../repositories/itinerary');
+var stepClassRepository = require('../repositories/step');
+var stopClassRepository = require('../repositories/stop');
+
+// Require internal services
+var itineraryClassService = require('../services/itinerary');
+
+// Create router
 var router = express.Router();
 
-var exists = function (itineraries, id) {
-	var found = null;
-	var exists = false;
+// Create repositories
+var itineraryRepository = new itineraryClassRepository(queryHelper);
+var stepRepository = new stepClassRepository(queryHelper);
+var stopRepository = new stopClassRepository(queryHelper);
 
-	itineraries.forEach(function (element) {
-		exists = element.id == id;
-		if (exists) {
-			found = element;
-			return;
-		}
+// Create services
+var itineraryService = new itineraryClassService(itineraryRepository, stepRepository, stopRepository, databaseHelper, dateHelper);
+
+/***********************/
+/* GET all itineraries */
+/***********************/
+router.get('/', function (req, res, next) {
+	// Get itineraries in database
+	itineraryService.getItineraries(error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
 	});
-
-	return found;
-};
+});
 
 /************************/
 /* GET user itineraries */
 /************************/
-router.get('/', function (req, res, next) {
-	// Get itineraries in database
-	var query = repository.getItineraries();
-	db.query(query, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			if (results == null || results.length == 0)
-				res.respond(results, 200);
-			else {
-				var itineraries = [];
-
-				results.forEach(function (element) {
-					if (exists(itineraries, element.id) == null) {
-						element.users = [{
-							id: element.userId,
-							name: element.userName
-						}];
-						itineraries.push(element);
-					}
-					else {
-						itineraries[itineraries.indexOf(exists(itineraries, element.id))].users.push({
-							id: element.userId,
-							name: element.userName
-						})
-					}
-				});
-
-				res.respond(itineraries, 200);
-			}
-		}
-	});
-});
-
 router.get('/user/:userid', function (req, res, next) {
 	// Get params from client
 	var userId = req.params.userid;
 
 	// Get itineraries of a user in database with these parameters if exists
-	var query = repository.getUserItineraries(userId);
-	db.query(query, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			var itineraries = [];
-
-			results.forEach(function (element) {
-				if (exists(itineraries, element.id) == null) {
-					element.users = [{
-						id: element.userId,
-						name: element.userName
-					}];
-					itineraries.push(element);
-				}
-				else {
-					itineraries[itineraries.indexOf(exists(itineraries, element.id))].users.push({
-						id: element.userId,
-						name: element.userName
-					})
-				}
-			});
-
-			res.respond(itineraries, 200);
-		}
+	itineraryService.getUserItineraries(userId, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
 	});
 });
 
+/*************************/
+/* GET itinerary details */
+/*************************/
 router.get('/:itineraryid', function (req, res, next) {
 	// Get params from client
 	var itineraryId = req.params.itineraryid;
 
 	// Get itineraries of a user in database with these parameters if exists
-	var query = repository.getItinerary(itineraryId);
-	db.query(query, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			var itineraries = [];
-
-			results.forEach(function (element) {
-				if (exists(itineraries, element.id) == null) {
-					element.users = [{
-						id: element.userId,
-						name: element.userName
-					}];
-					delete element.userId;
-					delete element.userName;
-					itineraries.push(element);
-				}
-				else {
-					itineraries[itineraries.indexOf(exists(itineraries, element.id))].users.push({
-						id: element.userId,
-						name: element.userName
-					})
-				}
-			});
-
-			res.respond(itineraries.length > 0 ? itineraries[0] : itineraries, 200);
-		}
+	itineraryService.getItinerary(itineraryId, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
 	});
 });
 
@@ -142,13 +82,10 @@ router.put('/:itineraryid', function (req, res, next) {
 	var online = req.body.online;
 	var likes = req.body.likes;
 
-	var query = repository.updateItinerary(itineraryId, name, country, description, online, likes);
-
-	db.query(query, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else
-			res.respond([]);
+	itineraryService.updateItinerary(itineraryId, name, country, description, online, likes, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
 	});
 });
 
@@ -163,18 +100,10 @@ router.post('/', function (req, res, next) {
 	var userId = req.body.userId;
 	var online = req.body.online;
 
-	var query = repository.addItinerary(name, country, description, dateHelper.getDateTime(), online);
-
-	db.query(query, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			var query = repository.addUserToItinerary(results.insertId, userId);
-
-			db.query(query, function (error2, results2, fields2) {
-				res.respond({ id: results.insertId });
-			});
-		}
+	itineraryService.addItinerary(name, country, description, online, userId, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
 	});
 });
 
@@ -186,40 +115,10 @@ router.delete('/:itineraryid', function (req, res, next) {
 	var itineraryId = req.params.itineraryid;
 
 	// Delete the itinerary in database
-	var promises = [];
-	var query = stepRepository.deleteSteps(itineraryId);
-	var query2 = stopRepository.deleteStops(itineraryId);
-	console.log(query);
-	console.log(query2);
-
-	async.parallel([
-		db.query(query, function (error, results, fields) { if (error != null) res.respond(error, 500); }),
-		db.query(query2, function (error, results, fields) { if (error != null) res.respond(error, 500); }),
-		function (err, resu) {
-			var query = repository.deleteItinerary(itineraryId);
-
-			db.query(query, function (error, results, fields) {
-				if (error != null)
-					res.respond(error, 500);
-				else
-					res.respond([]);
-			});
-		}
-	])
-
-	db.query(query, function (error, results, fields) {
-		if (error != null)
-			res.respond(error, 500);
-		else {
-			var query = repository.deleteItinerary(itineraryId);
-
-			db.query(query, function (error, results, fields) {
-				if (error != null)
-					res.respond(error, 500);
-				else
-					res.respond([]);
-			});
-		}
+	itineraryService.deleteItinerary(itineraryId, error => {
+		res.respond(error, 500);
+	}, (results, fields) => {
+		res.respond(results, 200);
 	});
 });
 
