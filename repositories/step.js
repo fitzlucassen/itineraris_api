@@ -63,6 +63,22 @@ module.exports = class StepRepository {
         return query;
     }
 
+    getMaxPosition(itineraryId){
+        var query =
+            this.queryHelper.select(['MAX(main.position) as maxPosition']) +
+            this.queryHelper.from([{
+                table: 'step',
+                alias: 'main'
+            }]) + 
+            this.queryHelper.where([{
+                key: 'id_Itinerary',
+                value: itineraryId,
+                equalType: true
+            }]);
+
+        return query;
+    }
+
     addStep(itineraryId, city, description, type, lat, lng, date, position) {
         var query =
             this.queryHelper.insert('step', ['id_Itinerary', 'city', 'description', 'type', 'lat', 'lng', 'date', 'position']) +

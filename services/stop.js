@@ -44,7 +44,6 @@ module.exports = class StopService {
 
     updateStop(stopId, city, description, lat, lng, date, position, errorCallback, successCallback) {
         var query = this.stopRepository.updateStop(stopId, city, description, lat, lng, date, position);
-        console.log(query);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
@@ -54,7 +53,7 @@ module.exports = class StopService {
         });
     }
 
-    updateStops(stops) {
+    updateStops(stops, errorCallback, successCallback) {
         var cpt = 0;
 
         // Update the itinerary step in database
@@ -62,7 +61,6 @@ module.exports = class StopService {
             var stopId = element.id;
 
             var query = this.stopRepository.updateStep(stopId, element.city, element.description, element.lat, element.lng, element.date, element.position);
-            console.log(query);
 
             this.databaseHelper.query(query, (error, results, fields) => {
                 if (error != null) {
@@ -74,9 +72,8 @@ module.exports = class StopService {
         });
     }
 
-    addStop(itineraryId, city, description, lat, lng, date) {
+    addStop(itineraryId, city, description, lat, lng, date, errorCallback, successCallback) {
         var query = this.stopRepository.addStop(itineraryId, city, description, lat, lng, date, 0);
-        console.log(query);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
@@ -90,19 +87,19 @@ module.exports = class StopService {
 
     deleteStop(stopId, errorCallback, successCallback) {
         var query = this.pictureRepository.getStopPicture(stopId);
-        console.log(query);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
                 errorCallback(error);
 
             results.forEach(element => {
-                fs.unlink('./uploads/' + element.url);
+                fs.unlink('./uploads/' + element.url, error => {
+                    console.log(error);
+                });
             });
 
             // Delete the itinerary step in database
             var query = this.pictureRepository.deleteStopPictures(stopId);
-            console.log(query);
 
             this.databaseHelper.query(query, (error2, results2, fields2) => {
                 if (error2 != null)

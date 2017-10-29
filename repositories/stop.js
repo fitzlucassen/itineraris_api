@@ -110,7 +110,7 @@ module.exports = class StopRepository {
 			this.queryHelper.delete('stop') +
 			this.queryHelper.where([{
 				key: 'id',
-				value: stepId,
+				value: stopId,
 				equalType: true,
 				noEscape: true
 			}]);

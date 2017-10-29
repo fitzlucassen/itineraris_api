@@ -122,13 +122,13 @@ class QueryHelper {
                 query += ' ( ';
 
             // Manage = or IN operand between condition key and condition value
-            query += element.key + ' ' + (element.equalType ? EQUAL : IN) + ' ';
+            query += element.key + ' ' + (element.equalType === true ? EQUAL : (element.equalType === false ? IN : element.equalType)) + ' ';
 
             // If condition value is a list, browse it
             if (typeof element.value == 'object') {
                 query += ' ( ';
 
-                element.value.forEach(function (e) {
+                element.value.forEach(e => {
                     query += '\'' + replaceAll("'", "''", e) + '\', ';
                 });
                 query = query.substr(0, query.length - 2);

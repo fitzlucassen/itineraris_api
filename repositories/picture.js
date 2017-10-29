@@ -1,8 +1,8 @@
 module.exports = class PictureRepository {
-    constructor(queryHelper){
-		this.queryHelper = queryHelper;
+    constructor(queryHelper) {
+        this.queryHelper = queryHelper;
     }
-    
+
     getStepPicture(stepId) {
         var query =
             this.queryHelper.select(['main.*']) +
@@ -51,6 +51,39 @@ module.exports = class PictureRepository {
         return query;
     };
 
+    getLastPictureId() {
+        var query =
+            this.queryHelper.select(['MAX(main.id) as maxId']) +
+            this.queryHelper.from([{
+                table: 'picture',
+                alias: 'main'
+            }]);
+
+        return query;
+    }
+
+    getPictureAfterId(minPictureId, url) {
+        var query =
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
+                table: 'picture',
+                alias: 'main'
+            }]) +
+            this.queryHelper.where([{
+                key: 'url',
+                value: url,
+                equalType: true
+            }, {
+                key: 'id',
+                value: minPictureId,
+                equalType: '>',
+                noEscape: true,                
+                link: 'AND'
+            }]);
+
+        return query;
+    }
+
     addPictures(values) {
         var properties = [];
         var toAdd = [];
@@ -79,11 +112,20 @@ module.exports = class PictureRepository {
         var query = this.queryHelper.update('picture');
 
         if (stepId)
-            properties.push({ property: 'id_Step', value: stepId });
+            properties.push({
+                property: 'id_Step',
+                value: stepId
+            });
         if (stopId)
-            properties.push({ property: 'id_Stop', value: stopId });
+            properties.push({
+                property: 'id_Stop',
+                value: stopId
+            });
         if (caption)
-            properties.push({ property: 'caption', value: caption });
+            properties.push({
+                property: 'caption',
+                value: caption
+            });
 
         query += this.queryHelper.set(properties) +
             this.queryHelper.where([{

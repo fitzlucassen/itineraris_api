@@ -211,7 +211,7 @@ module.exports = class ItineraryRepository {
 
 	deleteUserFromItinerary(itineraryId, userId) {
 		var query =
-			this.queryHelper.delete('itinerary_user')
+			this.queryHelper.delete('itinerary_user') +
 			this.queryHelper.where([{
 				key: 'id_Itinerary',
 				value: itineraryId,
@@ -223,6 +223,19 @@ module.exports = class ItineraryRepository {
 				equalType: true,
 				noEscape: true,
 				link: 'AND'
+			}]);
+
+		return query;
+	};
+
+	deleteUsersFromItinerary(itineraryId) {
+		var query =
+			this.queryHelper.delete('itinerary_user') +
+			this.queryHelper.where([{
+				key: 'id_Itinerary',
+				value: itineraryId,
+				equalType: true,
+				noEscape: true
 			}]);
 
 		return query;

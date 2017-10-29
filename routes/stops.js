@@ -89,12 +89,10 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
     var itineraryId = req.params.itineraryid;
 
     // Get itinerary stops of an itinerary in database with these parameters if exists
-    var query = stopRepository.getItineraryStops(itineraryId);
-	var steps = db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else
-            res.respond(results);
+    stopService.getItineraryStops(itineraryId, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 
@@ -103,15 +101,13 @@ router.get('/itinerary/:itineraryid', function (req, res, next) {
 /******************/
 router.get('/user/:userid', function (req, res, next) {
     // Get params from client
-    var userid = req.params.userid;
+    var userId = req.params.userid;
 
     // Get itinerary stops of an itinerary in database with these parameters if exists
-    var query = stopRepository.getItinerariesStops(userid);
-	var steps = db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else
-            res.respond(results);
+    stopService.getUserStops(userId, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 
@@ -123,12 +119,10 @@ router.get('/:stopid', function (req, res, next) {
     var stopId = req.params.stopid;
 
     // Get itinerary stop in database with these parameters if exists
-    var query = stopRepository.getStop(stopId);
-	var itineraries = db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else
-            res.respond(results.length > 0 ? results[0] : null);
+    stopService.getStop(stopId, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 
@@ -147,14 +141,10 @@ router.put('/:stopid', function (req, res, next) {
     var position = req.body.position;
 
     // Update the itinerary stop in database
-    var query = stopRepository.updateStop(stopId, city, description, lat, lng, date, position);
-    console.log(query);
-
-    db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else
-            res.respond([]);
+    stopService.updateStop(stopId, city, description, lat, lng, date, position, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 
@@ -165,22 +155,11 @@ router.put('/', function (req, res, next) {
     // Get params from client
     var stops = req.body.stops;
 
-    var cpt = 0;
     // Update the itinerary stop in database
-    stops.forEach(function (element) {
-        var stopId = element.id;
-
-        var query = stopRepository.updateStop(stopId, element.city, element.description, element.lat, element.lng, element.date, element.position);
-        console.log(query);
-    
-        db.query(query, function (error, results, fields) {
-            if (error != null) {
-                res.respond(error, 500);
-                return;
-            }
-            else if (cpt++ == stops.length - 1)
-                res.respond([]);
-        });
+    stopService.updateStops(stops, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 
@@ -197,14 +176,10 @@ router.post('/', function (req, res, next) {
     var itineraryId = req.body.itineraryId;
 
     // Insert the itinerary stop in database
-    var query = stopRepository.addStop(itineraryId, city, description, lat, lng, date, 0);
-    console.log(query);
-
-    db.query(query, function (error, results, fields) {
-        if (error != null)
-            res.respond(error, 500);
-        else
-            res.respond({ id: results.insertId });
+    stopService.addStop(itineraryId, city, description, lat, lng, date, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 
@@ -215,32 +190,10 @@ router.delete('/:stopid', function (req, res, next) {
     // Get params from client
     var stopId = req.params.stopid;
 
-    var query = pictureRepository.getStopPicture(stopId);
-	db.query(query, function (error, results, fields) {
-        results.forEach(function (element) {
-            fs.unlink('./uploads/' + element.url);
-        });
-
-        // Delete the itinerary stop in database
-        var query = pictureRepository.deleteStopPictures(stopId);
-        console.log(query);
-
-        db.query(query, function (error, results, fields) {
-            if (error != null)
-                res.respond(error, 500);
-            else {
-                var query = stopRepository.deleteStop(stopId);
-                console.log(query);
-
-                db.query(query, function (error, results, fields) {
-                    if (error != null)
-                        res.respond(error, 500);
-                    else {
-                        res.respond([]);
-                    }
-                });
-            }
-        });
+    stopService.deleteStop(stopId, error => {
+        res.respond(error, 500);
+    }, (results, fields) => {
+        res.respond(results);
     });
 });
 

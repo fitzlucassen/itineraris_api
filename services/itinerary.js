@@ -108,7 +108,7 @@ module.exports = class ItineraryService {
 
                     results.forEach(element => {
                         var i = this.exists(itineraries, element.id);
-                    
+
                         if (i == null) {
                             element.users = [{
                                 id: element.userId,
@@ -143,7 +143,7 @@ module.exports = class ItineraryService {
     }
 
     addItinerary(name, country, description, online, userId, errorCallback, successCallback) {
-        var query = this.itineraryRepository.addItinerary(name, country, description, this.dateHelper.getDateTime(), online);
+        var query = this.itineraryRepository.addItinerary(name, country, description, this.dateHelper.getCurrentDateTime(), online);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
@@ -166,29 +166,42 @@ module.exports = class ItineraryService {
     deleteItinerary(itineraryId, errorCallback, successCallback) {
         var query = this.stepRepository.deleteSteps(itineraryId);
         var query2 = this.stopRepository.deleteStops(itineraryId);
-        console.log(query);
-        console.log(query2);
+        var query3 = this.itineraryRepository.deleteUsersFromItinerary(itineraryId);
 
+        var that = this;
+        
         async.parallel([
-            this.databaseHelper.query(query, (error, results, fields) => {
-                if (error != null) errorCallback(error);
-            }),
-            this.databaseHelper.query(query2, (error, results, fields) => {
-                if (error != null) errorCallback(error);
-            }),
-            (err, resu) => {
-                if (err != null)
-                    errorCallback(err);
-
-                var query = this.itineraryRepository.deleteItinerary(itineraryId);
-
-                this.databaseHelper.query(query, (error, results, fields) => {
-                    if (error != null)
-                        errorCallback(error);
-                    else
-                        successCallback([], fields);
+            function (callback) {
+                that.databaseHelper.query(query, (error, results, fields) => {
+                    if (error != null) errorCallback(error);
+                    callback();
+                });
+            },
+            function (callback) {
+                that.databaseHelper.query(query2, (error, results, fields) => {
+                    if (error != null) errorCallback(error);
+                    callback();
+                });
+            },
+            function (callback) {
+                that.databaseHelper.query(query3, (error, results, fields) => {
+                    if (error != null) errorCallback(error);
+                    callback();
                 });
             }
-        ]);
+        ],
+        (err) => {
+            if (err != null)
+                errorCallback(err);
+
+            var query = this.itineraryRepository.deleteItinerary(itineraryId);
+
+            this.databaseHelper.query(query, (error, results, fields) => {
+                if (error != null)
+                    errorCallback(error);
+                else
+                    successCallback([], fields);
+            });
+        });
     }
 }

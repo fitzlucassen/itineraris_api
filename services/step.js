@@ -64,7 +64,6 @@ module.exports = class StepService {
 
     updateStep(stepId, city, description, type, lat, lng, date, position, errorCallback, successCallback) {
         var query = this.stepRepository.updateStep(stepId, city, description, type, lat, lng, date, position);
-        console.log(query);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
@@ -74,7 +73,7 @@ module.exports = class StepService {
         });
     }
 
-    updateSteps(steps) {
+    updateSteps(steps, errorCallback, successCallback) {
         var cpt = 0;
 
         // Update the itinerary step in database
@@ -82,7 +81,6 @@ module.exports = class StepService {
             var stepId = element.id;
 
             var query = this.stepRepository.updateStep(stepId, element.city, element.description, element.type, element.lat, element.lng, element.date, element.position);
-            console.log(query);
 
             this.databaseHelper.query(query, (error, results, fields) => {
                 if (error != null) {
@@ -94,35 +92,38 @@ module.exports = class StepService {
         });
     }
 
-    addStep(itineraryId, city, description, type, lat, lng, date) {
-        var query = this.stepRepository.addStep(itineraryId, city, description, type, lat, lng, date, 0);
-        console.log(query);
+    addStep(itineraryId, city, description, type, lat, lng, date, errorCallback, successCallback) {
+        var query = this.stepRepository.getMaxPosition(itineraryId);
 
         this.databaseHelper.query(query, (error, results, fields) => {
-            if (error != null)
-                errorCallback(error);
-            else
-                successCallback({
-                    id: results.insertId
-                }, fields);
+            var query2 = this.stepRepository.addStep(itineraryId, city, description, type, lat, lng, date, (results[0].maxPosition + 1));
+    
+            this.databaseHelper.query(query2, (error2, results2, fields2) => {
+                if (error2 != null)
+                    errorCallback(error2);
+                else
+                    successCallback({
+                        id: results2.insertId
+                    }, fields2);
+            });
         });
     }
 
     deleteStep(stepId, errorCallback, successCallback) {
         var query = this.pictureRepository.getStepPicture(stepId);
-        console.log(query);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
                 errorCallback(error);
 
             results.forEach(element => {
-                fs.unlink('./uploads/' + element.url);
+                fs.unlink('./uploads/' + element.url, error => {
+                    console.log(error);
+                });
             });
 
             // Delete the itinerary step in database
             var query = this.pictureRepository.deleteStepPictures(stepId);
-            console.log(query);
 
             this.databaseHelper.query(query, (error2, results2, fields2) => {
                 if (error2 != null)

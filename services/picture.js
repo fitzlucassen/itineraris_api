@@ -33,7 +33,7 @@ module.exports = class PictureService {
         var array = [];
 
         files.forEach(element => {
-            var date = this.dateHelper.getDateTime();
+            var date = this.dateHelper.getCurrentDateTime();
             var entity = {
                 url: element.filename,
                 caption: '',
@@ -45,13 +45,41 @@ module.exports = class PictureService {
             array.push(entity);
         });
 
-        var query = this.pictureRepository.addPictures(array);
+        // Get last picture id created
+        var query = this.pictureRepository.getLastPictureId();
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
                 errorCallback(error);
             else {
-                successCallback(results, fields);
+                var lastPictureId = results != null && results.length > 0 ? results[0].maxId : 0;
+
+                // Add all pictures to add
+                var query = this.pictureRepository.addPictures(array);
+
+                this.databaseHelper.query(query, (error, results, fields) => {
+                    if (error != null)
+                        errorCallback(error);
+                    else {
+                        // browse added pictures
+                        var cpt = 0;
+                        array.forEach(element => {
+                            // get its created id and put it in the array
+                            var q = this.pictureRepository.getPictureAfterId(lastPictureId, element.url);
+
+                            this.databaseHelper.query(q, (err, resu, f) => {
+                                if (err != null)
+                                    errorCallback(err);
+                                else {
+                                    array[array.indexOf(element)].id = resu[0].id;
+
+                                    if (++cpt == array.length)
+                                        successCallback(array, fields);
+                                }
+                            });
+                        });
+                    }
+                });
             }
         });
     }
@@ -60,7 +88,7 @@ module.exports = class PictureService {
         var array = [];
 
         files.forEach(element => {
-            var date = this.dateHelper.getDateTime();
+            var date = this.dateHelper.getCurrentDateTime();
             var entity = {
                 url: element.filename,
                 caption: '',
@@ -72,13 +100,41 @@ module.exports = class PictureService {
             array.push(entity);
         });
 
-        var query = this.pictureRepository.addPictures(array);
+        // Get last picture id created
+        var query = this.pictureRepository.getLastPictureId();
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)
                 errorCallback(error);
             else {
-                successCallback(results, fields);
+                var lastPictureId = results != null && results.length > 0 ? results[0].maxId : 0;
+
+                // Add all pictures to add
+                var query = this.pictureRepository.addPictures(array);
+
+                this.databaseHelper.query(query, (error, results, fields) => {
+                    if (error != null)
+                        errorCallback(error);
+                    else {
+                        // browse added pictures
+                        var cpt = 0;
+                        array.forEach(element => {
+                            // get its created id and put it in the array
+                            var q = this.pictureRepository.getPictureAfterId(lastPictureId, element.url);
+
+                            this.databaseHelper.query(q, (err, resu, f) => {
+                                if (err != null)
+                                    errorCallback(err);
+                                else {
+                                    array[array.indexOf(element)].id = resu[0].id;
+
+                                    if (++cpt == array.length)
+                                        successCallback(array, fields);
+                                }
+                            });
+                        });
+                    }
+                });
             }
         });
     }
@@ -106,7 +162,7 @@ module.exports = class PictureService {
                     if (error != null)
                         errorCallback(error);
                     else {
-                        successCallback(results, fields);
+                        successCallback(array, fields);
                     }
                 }
             });
@@ -118,11 +174,12 @@ module.exports = class PictureService {
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (results.length > 0) {
-                fs.unlink('./uploads/' + results[0].url);
+                fs.unlink('./uploads/' + results[0].url, error => {
+                    console.log(error);
+                });
 
                 // Delete the itinerary step in database
                 var query = this.pictureRepository.deletePicture(pictureId);
-                console.log(query);
 
                 this.databaseHelper.query(query, (error, results, fields) => {
                     if (error != null)
