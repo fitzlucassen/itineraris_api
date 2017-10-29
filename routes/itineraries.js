@@ -1,7 +1,5 @@
 // Require external modules
 var express = require('express');
-var crypto = require('crypto');
-var async = require('async');
 
 // Require internal module
 var dateHelper = require('../helpers/date');
