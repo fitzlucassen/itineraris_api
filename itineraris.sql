@@ -102,6 +102,20 @@ INSERT INTO `step` (`id`, `id_Itinerary`, `city`, `description`, `lat`, `lng`, `
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `step details`
+--
+
+CREATE TABLE `stepDetail` (
+  `id` int(10) NOT NULL,
+  `id_Step` int(10) NOT NULL,
+  `type` varchar(255) NOT NULL DEFAULT 'restaurant',
+  `name` varchar(255) NOT NULL,
+  `price` double NOT NULL,
+  `description` text DEFAULT NULL,
+  `date` datetime NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
 -- Structure de la table `stop`
 --
 
@@ -159,6 +173,12 @@ ALTER TABLE `picture`
 --
 ALTER TABLE `step`
   ADD PRIMARY KEY (`id`);
+  
+--
+-- Index pour la table `step`
+--
+ALTER TABLE `stepDetail`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `stop`
@@ -191,6 +211,10 @@ ALTER TABLE `picture`
 --
 ALTER TABLE `step`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  
+ALTER TABLE `stepDetail`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+  
 --
 -- AUTO_INCREMENT pour la table `stop`
 --

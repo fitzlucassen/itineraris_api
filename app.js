@@ -11,6 +11,7 @@ require('./helpers/response');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var itineraries = require('./routes/itineraries');
+var stepDetails = require('./routes/stepDetails');
 var steps = require('./routes/steps');
 var stops = require('./routes/stops');
 
@@ -37,6 +38,7 @@ app.use(function (req, res, next) {
 app.use('/', index);
 app.use('/users', users);
 app.use('/itineraries', itineraries);
+app.use('/steps/details', stepDetails);
 app.use('/steps', steps);
 app.use('/stops', stops);
 
