@@ -20,4 +20,15 @@ module.exports = class StepService {
                 }, fields);
         });
     }
+
+    getStepDetails(stepId, errorCallback, successCallback) {
+        var query = this.stepDetailsRepository.getStepDetails(stepId);
+
+        this.databaseHelper.query(query, (error, results, fields) => {
+            if (error != null)
+                errorCallback(error);
+            else
+                successCallback(results, fields);
+        });
+    }
 }

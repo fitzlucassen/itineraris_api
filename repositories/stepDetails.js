@@ -12,4 +12,20 @@ module.exports = class StepRepository {
 
         return query;
     }
+
+    getStepDetails(id) {
+        var query =
+            this.queryHelper.select(['main.*']) +
+            this.queryHelper.from([{
+                table: 'stepdetail',
+                alias: 'main'
+            }]) +
+            this.queryHelper.where([{
+                key: 'id_Step',
+                value: id,
+                equalType: true
+            }]);
+
+        return query;
+    }
 }
