@@ -2,8 +2,9 @@ var async = require('async');
 var fs = require('fs');
 
 module.exports = class StepService {
-    constructor(stepRepository, pictureRepository, databaseHelper, dateHelper) {
+    constructor(stepRepository, stepDetailRepository, pictureRepository, databaseHelper, dateHelper) {
         this.stepRepository = stepRepository;
+        this.stepDetailRepository = stepDetailRepository;
         this.pictureRepository = pictureRepository;
         this.databaseHelper = databaseHelper;
         this.dateHelper = dateHelper;
@@ -116,28 +117,35 @@ module.exports = class StepService {
             if (error != null)
                 errorCallback(error);
 
-            results.forEach(element => {
-                fs.unlink('./uploads/' + element.url, error => {
-                    console.log(error);
-                });
-            });
+            var query = this.stepDetailRepository.deleteStepDetails(stepId);
 
-            // Delete the itinerary step in database
-            var query = this.pictureRepository.deleteStepPictures(stepId);
+            this.databaseHelper.query(query, (errorDetail, resultsDetail, fieldsDetail) => {
+                if (errorDetail != null)
+                    errorCallback(errorDetail);
 
-            this.databaseHelper.query(query, (error2, results2, fields2) => {
-                if (error2 != null)
-                    errorCallback(error2);
-                else {
-                    var query = this.stepRepository.deleteStep(stepId);
-                    this.databaseHelper.query(query, (error3, results3, fields3) => {
-                        if (error3 != null)
-                            errorCallback(error3);
-                        else {
-                            successCallback([], fields);
-                        }
+                results.forEach(element => {
+                    fs.unlink('./uploads/' + element.url, error => {
+                        console.log(error);
                     });
-                }
+                });
+
+                // Delete the itinerary step in database
+                var query = this.pictureRepository.deleteStepPictures(stepId);
+
+                this.databaseHelper.query(query, (error2, results2, fields2) => {
+                    if (error2 != null)
+                        errorCallback(error2);
+                    else {
+                        var query = this.stepRepository.deleteStep(stepId);
+                        this.databaseHelper.query(query, (error3, results3, fields3) => {
+                            if (error3 != null)
+                                errorCallback(error3);
+                            else {
+                                successCallback([], fields);
+                            }
+                        });
+                    }
+                });
             });
         });
     }

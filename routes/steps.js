@@ -5,6 +5,7 @@ var multer = require('multer');
 // Require internal repositories
 var pictureClassRepository = require('../repositories/picture');
 var stepClassRepository = require('../repositories/step');
+var stepDetailClassRepository = require('../repositories/stepDetail');
 
 // Require internal module
 var dateHelper = require('../helpers/date');
@@ -20,10 +21,11 @@ var router = express.Router();
 
 // Create repositories
 var stepRepository = new stepClassRepository(queryHelper);
+var stepDetailRepository = new stepDetailClassRepository(queryHelper);
 var pictureRepository = new pictureClassRepository(queryHelper);
 
 // Create services
-var stepService = new stepClassService(stepRepository, pictureRepository, databaseHelper, dateHelper);
+var stepService = new stepClassService(stepRepository, stepDetailRepository, pictureRepository, databaseHelper, dateHelper);
 var pictureService = new pictureClassService(pictureRepository, databaseHelper, dateHelper);
 
 // Override upload storage functions
