@@ -32,7 +32,7 @@ module.exports = class StepService {
         });
     }
 
-    deleteStepDetail(stepDetailId) {
+    deleteStepDetail(stepDetailId, errorCallback, successCallback) {
         var query = this.stepDetailsRepository.deleteStepDetail(stepDetailId);
 
         this.databaseHelper.query(query, (error, results, fields) => {
@@ -43,7 +43,7 @@ module.exports = class StepService {
         });
     }
 
-    deleteStepDetails(stepId) {
+    deleteStepDetails(stepId, errorCallback, successCallback) {
         var query = this.stepDetailsRepository.deleteStepDetails(stepId);
 
         this.databaseHelper.query(query, (error, results, fields) => {

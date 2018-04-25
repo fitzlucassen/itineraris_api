@@ -45,8 +45,8 @@ router.post('/', function (req, res, next) {
 /*************************************/
 /* PUT update itinerary step details */
 /*************************************/
-router.put('/:stepDetailId', function (req, res, next) {
-	var stepDetailId = req.params.stepDetailId;
+router.put('/:stepdetailid', function (req, res, next) {
+	var stepDetailId = req.params.stepdetailid;
     
     // Get params from client
     var name = req.body.name;
@@ -66,8 +66,8 @@ router.put('/:stepDetailId', function (req, res, next) {
 /****************************************/
 /* DELETE remove itinerary step details */
 /****************************************/
-router.delete('/:stepDetailId', function (req, res, next) {
-	var stepDetailId = req.params.stepDetailId;
+router.delete('/:stepdetailid', function (req, res, next) {
+	var stepDetailId = req.params.stepdetailid;
     
     // Remove the itinerary step detail in database
     stepService.deleteStepDetail(stepDetailId, error => {

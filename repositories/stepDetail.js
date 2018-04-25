@@ -42,7 +42,7 @@ module.exports = class StepRepository {
         return query;
     }
 
-    removeStepDetail(id) {
+    deleteStepDetail(id) {
 		var query =
 			this.queryHelper.delete('stepDetail') +
 			this.queryHelper.where([{
@@ -55,7 +55,7 @@ module.exports = class StepRepository {
 		return query;
     }
 
-    removeStepDetails(id) {
+    deleteStepDetails(id) {
 		var query =
 			this.queryHelper.delete('stepDetail') +
 			this.queryHelper.where([{
