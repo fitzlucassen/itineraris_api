@@ -53,10 +53,9 @@ router.put('/:stepdetailid', function (req, res, next) {
     var description = req.body.description;
     var price = req.body.price;
     var type = req.body.type;
-    var date = req.body.date;
 
     // Update the itinerary step detail in database
-    stepService.updateStepDetail(stepDetailId, type, name, price, description, date, error => {
+    stepService.updateStepDetail(stepDetailId, type, name, price, description, error => {
         res.respond(error, 500);
     }, (results, fields) => {
         res.respond(results, 200);

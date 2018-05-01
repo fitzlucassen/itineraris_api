@@ -21,8 +21,8 @@ module.exports = class StepService {
         });
     }
 
-    updateStepDetail(stepDetailId, type, name, price, description, date, errorCallback, successCallback) {
-        var query = this.stepDetailsRepository.updateStepDetail(stepDetailId, type, name, price, description, date);
+    updateStepDetail(stepDetailId, type, name, price, description, errorCallback, successCallback) {
+        var query = this.stepDetailsRepository.updateStepDetail(stepDetailId, type, name, price, description);
 
         this.databaseHelper.query(query, (error, results, fields) => {
             if (error != null)

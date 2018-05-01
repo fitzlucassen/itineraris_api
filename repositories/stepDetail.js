@@ -13,7 +13,7 @@ module.exports = class StepRepository {
         return query;
     }
 
-    updateStepDetail(stepDetailId, type, name, price, description, date) {
+    updateStepDetail(stepDetailId, type, name, price, description) {
         var query =
             this.queryHelper.update('stepDetail') +
             this.queryHelper.set([{
@@ -28,9 +28,6 @@ module.exports = class StepRepository {
             }, {
                 property: 'description',
                 value: description
-            }, {
-                property: 'date',
-                value: date
             }]) +
             this.queryHelper.where([{
                 key: 'id',
